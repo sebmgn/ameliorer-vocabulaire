@@ -67,8 +67,12 @@
     .page { padding: 2.5rem 1.1rem 3rem; }
   }
 
-  .masthead { margin-left: 3rem; margin-bottom: 2.25rem; }
+  .masthead {
+    margin-left: 3rem; margin-bottom: 2.25rem;
+    display: flex; align-items: flex-start; justify-content: space-between; gap: 2rem; flex-wrap: wrap;
+  }
   @media (max-width: 640px) { .masthead { margin-left: 1.5rem; } }
+  .masthead-text { min-width: 0; }
   .eyebrow {
     font-family: -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     font-size: 0.72rem;
@@ -80,19 +84,22 @@
   h1 {
     font-size: clamp(2rem, 5vw, 2.9rem);
     font-weight: 600;
-    margin: 0 0 0.65rem;
+    margin: 0;
     text-wrap: balance;
     letter-spacing: -0.01em;
     background: linear-gradient(100deg, var(--ink) 40%, var(--rule-blue) 78%, var(--cat-adjectif) 100%);
     -webkit-background-clip: text; background-clip: text; color: transparent;
   }
-  .tagline {
-    margin: 0;
-    max-width: 60ch;
-    color: var(--ink-soft);
-    font-style: italic;
-    font-size: 1.05rem;
+
+  .masthead-art { flex: none; width: 190px; margin: 0; text-align: right; }
+  .masthead-art img {
+    display: block; width: 100%; height: 130px; object-fit: cover; border-radius: 6px;
+    border: 1px solid var(--card-border); box-shadow: 0 14px 30px -16px var(--card-shadow);
   }
+  .masthead-art figcaption {
+    margin-top: 0.5rem; font-style: italic; font-size: 0.76rem; color: var(--ink-faint); line-height: 1.4;
+  }
+  @media (max-width: 640px) { .masthead-art { display: none; } }
 
   .toolbar {
     margin-left: 3rem;
@@ -446,9 +453,14 @@
 <div class="page">
 
   <header class="masthead">
-    <p class="eyebrow">Carnet personnel &mdash; fran&ccedil;ais soutenu</p>
-    <h1>Carnet de mots</h1>
-    <p class="tagline"><span id="total-count">21</span> mots et expressions &agrave; glisser dans une phrase, une r&eacute;union, ou une dispute de comptoir.</p>
+    <div class="masthead-text">
+      <p class="eyebrow">Carnet personnel</p>
+      <h1>Carnet de mots</h1>
+    </div>
+    <figure class="masthead-art" id="masthead-art">
+      <img id="art-img" src="" alt="" />
+      <figcaption id="art-caption"></figcaption>
+    </figure>
   </header>
 
   <nav class="view-toggle" id="view-toggle">
@@ -2080,6 +2092,24 @@
     setGhToken("");
     updateSyncStatus("no-token");
   });
+
+  // Petite touche de culture générale en haut à droite : un tableau connu
+  // (domaine public) tiré au sort à chaque visite. Images hébergées sur
+  // Wikimedia Commons, pas embarquées dans le fichier.
+  var ARTWORKS = [
+    { file: "Mona_Lisa.jpg", title: "La Joconde", artist: "Léonard de Vinci", year: "v. 1503–1519" },
+    { file: "Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg", title: "La Nuit étoilée", artist: "Vincent van Gogh", year: "1889" },
+    { file: "Edvard_Munch_-_The_Scream_-_Google_Art_Project.jpg", title: "Le Cri", artist: "Edvard Munch", year: "1893" },
+    { file: "Meisje_met_de_parel.jpg", title: "La Jeune Fille à la perle", artist: "Johannes Vermeer", year: "v. 1665" },
+    { file: "Monet_-_Impression,_Sunrise.jpg", title: "Impression, soleil levant", artist: "Claude Monet", year: "1872" },
+    { file: "Great_Wave_off_Kanagawa2.jpg", title: "La Grande Vague de Kanagawa", artist: "Hokusai", year: "v. 1831" }
+  ];
+  var artPick = ARTWORKS[Math.floor(Math.random() * ARTWORKS.length)];
+  var artImgEl = document.getElementById("art-img");
+  var artCaptionEl = document.getElementById("art-caption");
+  artImgEl.src = "https://commons.wikimedia.org/wiki/Special:FilePath/" + encodeURIComponent(artPick.file) + "?width=400";
+  artImgEl.alt = artPick.title + ", " + artPick.artist;
+  artCaptionEl.innerHTML = "<em>" + artPick.title + "</em> — " + artPick.artist + ", " + artPick.year;
 
   buildFilters();
   rebindCardRefs();
