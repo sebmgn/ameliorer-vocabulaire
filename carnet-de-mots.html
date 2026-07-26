@@ -152,6 +152,18 @@
   .search-input::placeholder { color: var(--ink-faint); }
   .search-input:focus { border-color: var(--focus); }
 
+  .tag-filter-banner {
+    margin: 0 0 1.1rem 1.5rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+    background: color-mix(in srgb, var(--focus) 10%, var(--card-bg)); border: 1px solid var(--focus);
+    border-radius: 999px; padding: 0.5rem 1rem; font-family: -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    font-size: 0.85rem; color: var(--focus); width: fit-content;
+  }
+  @media (max-width: 640px) { .tag-filter-banner { margin-left: 0; } }
+  .tag-filter-banner button {
+    background: none; border: none; color: var(--focus); cursor: pointer; font-size: 0.8rem;
+    text-decoration: underline; padding: 0;
+  }
+
   .stage {
     display: flex; align-items: center; gap: 1rem; margin-left: 1.5rem;
   }
@@ -337,7 +349,17 @@
   .list-view { margin-left: 3rem; }
   @media (max-width: 640px) { .list-view { margin-left: 1.5rem; } }
   .list-view p.intro { color: var(--ink-soft); font-style: italic; margin: 0 0 1.5rem; max-width: 60ch; }
-  .list-view .filters { margin-bottom: 1.5rem; }
+  .list-section { margin-bottom: 2.5rem; }
+  .list-heading {
+    display: flex; align-items: center; gap: 0.6rem;
+    font-family: -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    font-size: 1rem; font-weight: 700; color: var(--ink); margin: 0 0 1rem;
+  }
+  .count-pill {
+    font-size: 0.75rem; font-weight: 600; color: var(--ink-faint); background: var(--card-bg);
+    border: 1px solid var(--card-border); border-radius: 999px; padding: 0.1rem 0.6rem;
+    font-variant-numeric: tabular-nums;
+  }
   .list-view .index-grid { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
   .list-view .index-tile { padding: 0.7rem 0.85rem; }
   .list-view .idx-actions { display: flex; gap: 0.3rem; flex: none; }
@@ -488,6 +510,11 @@
     </div>
   </div>
 
+  <div class="tag-filter-banner" id="tag-filter-banner" hidden>
+    <span class="tag-filter-label"></span>
+    <button type="button" id="tag-filter-exit">&#10005; Revenir &agrave; tous les mots</button>
+  </div>
+
   <div class="stage">
     <button class="nav-btn" id="prev-btn" aria-label="Fiche pr&eacute;c&eacute;dente">&lsaquo;</button>
     <div class="card-wrap">
@@ -538,9 +565,15 @@
   </section>
 
   <section id="view-list" class="list-view" hidden>
-    <p class="intro">Les mots que tu as marqu&eacute;s &laquo;&nbsp;&agrave; apprendre&nbsp;&raquo; ou &laquo;&nbsp;appris&nbsp;&raquo;, pour t&rsquo;y retrouver d&rsquo;un coup d&rsquo;&oelig;il.</p>
-    <div class="filters" id="list-filters"></div>
-    <div class="index-grid" id="list-grid"></div>
+    <p class="intro">Les mots que tu as marqu&eacute;s, pour t&rsquo;y retrouver d&rsquo;un coup d&rsquo;&oelig;il &mdash; clique sur un mot pour naviguer dedans dans le Carnet.</p>
+    <div class="list-section">
+      <h2 class="list-heading">&#128278; &Agrave; apprendre <span id="list-todo-count" class="count-pill"></span></h2>
+      <div class="index-grid" id="list-grid-todo"></div>
+    </div>
+    <div class="list-section">
+      <h2 class="list-heading">&#10003; Appris <span id="list-done-count" class="count-pill"></span></h2>
+      <div class="index-grid" id="list-grid-done"></div>
+    </div>
   </section>
 
   <section id="view-add" class="add-view" hidden>
@@ -1608,8 +1641,14 @@
   var query = "";
   var pos = 0;
   var currentView = "carnet";
+  // Quand on arrive depuis "Ma liste", le Carnet se restreint aux mots
+  // portant ce tag (précédent/suivant ne parcourent alors que ce sous-ensemble),
+  // jusqu’à ce qu’on choisisse un filtre normal ou une recherche.
+  var activeTagFilter = null;
+  var TAG_FILTER_LABELS = { a_apprendre: "À apprendre", appris: "Appris" };
 
   function matchesFilter(entry) {
+    if (activeTagFilter) return getTag(entry.id) === activeTagFilter;
     var groupOk = activeGroup === "tous" || entry.group === activeGroup;
     if (!groupOk) return false;
     if (!query) return true;
@@ -1617,6 +1656,21 @@
     return entry.mot.toLowerCase().indexOf(q) !== -1 ||
            entry.def.toLowerCase().indexOf(q) !== -1 ||
            entry.syn.toLowerCase().indexOf(q) !== -1;
+  }
+
+  function clearTagFilter() {
+    activeTagFilter = null;
+    updateTagFilterBanner();
+  }
+  function updateTagFilterBanner() {
+    var banner = document.getElementById("tag-filter-banner");
+    if (!banner) return;
+    if (activeTagFilter) {
+      banner.hidden = false;
+      banner.querySelector(".tag-filter-label").textContent = "Tu navigues dans « " + TAG_FILTER_LABELS[activeTagFilter] + " »";
+    } else {
+      banner.hidden = true;
+    }
   }
 
   function currentList() {
@@ -1655,6 +1709,7 @@
       btn.addEventListener("click", function () {
         activeGroup = g;
         pos = 0;
+        clearTagFilter();
         buildFilters();
         render();
       });
@@ -1833,12 +1888,18 @@
 
   prevBtn.addEventListener("click", function () { go(-1); });
   nextBtn.addEventListener("click", function () { go(1); });
+  document.getElementById("tag-filter-exit").addEventListener("click", function () {
+    clearTagFilter();
+    pos = 0;
+    render();
+  });
   document.getElementById("shuffle-btn").addEventListener("click", shuffle);
   document.getElementById("reset-btn").addEventListener("click", resetOrder);
 
   searchInput.addEventListener("input", function () {
     query = searchInput.value;
     pos = 0;
+    clearTagFilter();
     render();
   });
 
@@ -1984,29 +2045,18 @@
     });
   }
 
-  var listFiltersEl = document.getElementById("list-filters");
-  var listGridEl = document.getElementById("list-grid");
-  var listActiveTag = "a_apprendre";
-  var LIST_TAG_LABELS = { a_apprendre: "À apprendre", appris: "Appris", tous: "Tous les tagués" };
+  var listGridTodoEl = document.getElementById("list-grid-todo");
+  var listGridDoneEl = document.getElementById("list-grid-done");
+  var listTodoCountEl = document.getElementById("list-todo-count");
+  var listDoneCountEl = document.getElementById("list-done-count");
 
-  function buildListFilters() {
-    listFiltersEl.innerHTML = "";
-    ["a_apprendre", "appris", "tous"].forEach(function (t) {
-      var count = t === "tous" ? Object.keys(tags).length : countTag(t);
-      var btn = document.createElement("button");
-      btn.className = "filter-btn" + (t === listActiveTag ? " active" : "");
-      btn.textContent = LIST_TAG_LABELS[t] + " (" + count + ")";
-      btn.addEventListener("click", function () {
-        listActiveTag = t;
-        buildListView();
-      });
-      listFiltersEl.appendChild(btn);
-    });
-  }
-
-  function goToEntryInCarnet(entry) {
-    activeGroup = "tous"; query = ""; searchInput.value = "";
-    buildFilters();
+  // Ouvre le Carnet sur ce mot et restreint précédent/suivant aux mots
+  // portant le même tag, jusqu’à ce qu’un filtre normal ou une recherche
+  // soit utilisé (clearTagFilter).
+  function goToEntryInCarnet(entry, tag) {
+    activeTagFilter = tag;
+    query = ""; searchInput.value = "";
+    updateTagFilterBanner();
     var list = currentList();
     var idx = list.indexOf(entry);
     pos = idx === -1 ? 0 : idx;
@@ -2019,23 +2069,17 @@
     flashcardEl.scrollIntoView({ behavior: "smooth", block: "center" });
   }
 
-  function buildListView() {
-    buildListFilters();
-    listGridEl.innerHTML = "";
-    var matching = ENTRIES.filter(function (e) {
-      var t = getTag(e.id);
-      if (!t) return false;
-      return listActiveTag === "tous" || t === listActiveTag;
-    });
+  function buildListSection(tag, gridEl, countEl) {
+    var matching = ENTRIES.filter(function (e) { return getTag(e.id) === tag; });
+    countEl.textContent = matching.length;
+    gridEl.innerHTML = "";
     if (matching.length === 0) {
-      var emptyLabel = listActiveTag === "tous" ? "tagué" : "dans « " + LIST_TAG_LABELS[listActiveTag] + " »";
-      listGridEl.innerHTML = '<p class="no-words">Aucun mot ' + emptyLabel + ' pour l’instant &mdash; marque des mots depuis le Carnet.</p>';
+      gridEl.innerHTML = '<p class="no-words">Aucun mot ici pour l’instant &mdash; marque des mots depuis le Carnet.</p>';
       return;
     }
     matching.forEach(function (entry) {
-      var t = getTag(entry.id);
       var tile = document.createElement("div");
-      tile.className = "index-tile tag-" + t;
+      tile.className = "index-tile tag-" + tag;
       tile.setAttribute("tabindex", "0");
       tile.setAttribute("role", "button");
       tile.innerHTML =
@@ -2044,7 +2088,7 @@
       var actions = document.createElement("div");
       actions.className = "idx-actions";
       var todoBtn = document.createElement("button");
-      todoBtn.className = "todo" + (t === "a_apprendre" ? " on" : "");
+      todoBtn.className = "todo" + (tag === "a_apprendre" ? " on" : "");
       todoBtn.innerHTML = "🔖";
       todoBtn.setAttribute("aria-label", "Marquer à apprendre");
       todoBtn.addEventListener("click", function (ev) {
@@ -2054,7 +2098,7 @@
         buildListView();
       });
       var doneBtn = document.createElement("button");
-      doneBtn.className = "done" + (t === "appris" ? " on" : "");
+      doneBtn.className = "done" + (tag === "appris" ? " on" : "");
       doneBtn.innerHTML = "✓";
       doneBtn.setAttribute("aria-label", "Marquer appris");
       doneBtn.addEventListener("click", function (ev) {
@@ -2066,12 +2110,17 @@
       actions.appendChild(todoBtn);
       actions.appendChild(doneBtn);
       tile.appendChild(actions);
-      tile.addEventListener("click", function () { goToEntryInCarnet(entry); });
+      tile.addEventListener("click", function () { goToEntryInCarnet(entry, tag); });
       tile.addEventListener("keydown", function (e) {
-        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); goToEntryInCarnet(entry); }
+        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); goToEntryInCarnet(entry, tag); }
       });
-      listGridEl.appendChild(tile);
+      gridEl.appendChild(tile);
     });
+  }
+
+  function buildListView() {
+    buildListSection("a_apprendre", listGridTodoEl, listTodoCountEl);
+    buildListSection("appris", listGridDoneEl, listDoneCountEl);
   }
 
   var syncSetupEl = document.getElementById("sync-setup");
