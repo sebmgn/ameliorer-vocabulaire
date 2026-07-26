@@ -1,0 +1,1183 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Carnet de mots</title>
+<style>
+  :root {
+    --paper: #EEF0E7;
+    --paper-line: rgba(70,100,130,0.14);
+    --ink: #1E2A38;
+    --ink-soft: #55636D;
+    --ink-faint: #93998F;
+    --card-bg: #FBFAF4;
+    --card-border: #D9D4BE;
+    --card-shadow: rgba(30,40,50,0.20);
+    --rule-blue: #4E6E8E;
+    --accent: #B23A3E;
+    --accent-strong: #B23A3E;
+    --accent-ink: #FBF7EE;
+    --focus: #2662A8;
+    --cat-verbe: #2E7D6B;
+    --cat-adjectif: #7B4FA0;
+    --cat-nom: #C97A2B;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #12161D;
+      --paper-line: rgba(120,160,200,0.13);
+      --ink: #EAE5D8;
+      --ink-soft: #ACB2AC;
+      --ink-faint: #6B7480;
+      --card-bg: #181E26;
+      --card-border: #2C333D;
+      --card-shadow: rgba(0,0,0,0.55);
+      --rule-blue: #8FB3D6;
+      --accent: #E17A72;
+      --accent-strong: #C4433F;
+      --accent-ink: #FBF7EE;
+      --focus: #6FA8DC;
+      --cat-verbe: #4FA98E;
+      --cat-adjectif: #A688D6;
+      --cat-nom: #E0A34E;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #12161D; --paper-line: rgba(120,160,200,0.13); --ink: #EAE5D8; --ink-soft: #ACB2AC;
+    --ink-faint: #6B7480; --card-bg: #181E26; --card-border: #2C333D; --card-shadow: rgba(0,0,0,0.55);
+    --rule-blue: #8FB3D6; --accent: #E17A72; --accent-strong: #C4433F; --accent-ink: #FBF7EE; --focus: #6FA8DC;
+    --cat-verbe: #4FA98E; --cat-adjectif: #A688D6; --cat-nom: #E0A34E;
+  }
+  :root[data-theme="light"] {
+    --paper: #EEF0E7; --paper-line: rgba(70,100,130,0.14); --ink: #1E2A38; --ink-soft: #55636D;
+    --ink-faint: #93998F; --card-bg: #FBFAF4; --card-border: #D9D4BE; --card-shadow: rgba(30,40,50,0.20);
+    --rule-blue: #4E6E8E; --accent: #B23A3E; --accent-strong: #B23A3E; --accent-ink: #FBF7EE; --focus: #2662A8;
+    --cat-verbe: #2E7D6B; --cat-adjectif: #7B4FA0; --cat-nom: #C97A2B;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background:
+      repeating-linear-gradient(
+        to bottom,
+        transparent 0, transparent 31px,
+        var(--paper-line) 31px, var(--paper-line) 32px
+      ),
+      var(--paper);
+    color: var(--ink);
+    font-family: Georgia, 'Iowan Old Style', 'Palatino Linotype', 'Book Antiqua', serif;
+    line-height: 1.5;
+    min-height: 100vh;
+  }
+  ::selection { background: var(--accent); color: var(--accent-ink); }
+  a { color: inherit; }
+  button { font-family: inherit; }
+  :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: 2px; }
+
+  .page {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 3rem 2rem 4rem;
+    position: relative;
+  }
+  .page::before {
+    content: "";
+    position: absolute;
+    top: 0; bottom: 0;
+    left: 2.4rem;
+    width: 2px;
+    background: var(--accent);
+    opacity: 0.55;
+  }
+  @media (max-width: 640px) {
+    .page::before { left: 0.9rem; }
+    .page { padding: 2.5rem 1.1rem 3rem; }
+  }
+
+  .masthead { margin-left: 3rem; margin-bottom: 2.25rem; }
+  @media (max-width: 640px) { .masthead { margin-left: 1.5rem; } }
+  .eyebrow {
+    font-family: -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin: 0 0 0.6rem;
+  }
+  h1 {
+    font-size: clamp(2rem, 5vw, 2.9rem);
+    font-weight: 600;
+    margin: 0 0 0.65rem;
+    text-wrap: balance;
+    letter-spacing: -0.01em;
+    background: linear-gradient(100deg, var(--ink) 40%, var(--rule-blue) 78%, var(--cat-adjectif) 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .tagline {
+    margin: 0;
+    max-width: 60ch;
+    color: var(--ink-soft);
+    font-style: italic;
+    font-size: 1.05rem;
+  }
+
+  .toolbar {
+    margin-left: 3rem;
+    margin-bottom: 1.9rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1.25rem 1.75rem;
+    font-family: -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  }
+  @media (max-width: 640px) { .toolbar { margin-left: 1.5rem; } }
+
+  .progress-block { display: flex; flex-direction: column; gap: 0.35rem; min-width: 170px; }
+  .progress-label {
+    font-size: 0.78rem; color: var(--ink-soft);
+    font-variant-numeric: tabular-nums;
+  }
+  .progress-track {
+    height: 6px; background: var(--card-border); border-radius: 3px; overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%; width: 0%;
+    background: linear-gradient(90deg, var(--cat-verbe), var(--accent-strong));
+    transition: width 0.4s ease;
+  }
+
+  .filters { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+  .filter-btn {
+    background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 999px;
+    color: var(--ink-soft); font-size: 0.82rem; padding: 0.35rem 0.85rem;
+    cursor: pointer; font-variant-numeric: tabular-nums; transition: all 0.15s ease;
+  }
+  .filter-btn:hover { color: var(--ink); border-color: var(--ink-faint); }
+  .filter-btn.active { color: var(--accent-ink); border-color: transparent; font-weight: 600; background: var(--accent-strong); }
+
+  .search-wrap { margin-left: auto; }
+  @media (max-width: 640px) { .search-wrap { margin-left: 0; width: 100%; } }
+  .search-input {
+    background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 999px;
+    color: var(--ink); font-size: 0.88rem; padding: 0.45rem 1rem; width: 220px;
+    font-family: inherit;
+  }
+  @media (max-width: 640px) { .search-input { width: 100%; } }
+  .search-input::placeholder { color: var(--ink-faint); }
+  .search-input:focus { border-color: var(--focus); }
+
+  .stage {
+    display: flex; align-items: center; gap: 1rem; margin-left: 1.5rem;
+  }
+  @media (max-width: 640px) { .stage { margin-left: 0; gap: 0.35rem; } }
+
+  .nav-btn {
+    background: var(--card-bg); border: 1px solid var(--card-border); color: var(--ink-soft);
+    width: 3rem; height: 3rem; border-radius: 50%; font-size: 1.5rem; line-height: 1;
+    cursor: pointer; flex: none; display: flex; align-items: center; justify-content: center;
+    transition: border-color 0.2s, color 0.2s, transform 0.2s;
+    box-shadow: 0 6px 16px -8px var(--card-shadow);
+  }
+  .nav-btn:hover { color: var(--accent-ink); border-color: var(--accent-strong); background: var(--accent-strong); transform: translateY(-1px); }
+  .nav-btn:disabled { opacity: 0.35; cursor: default; }
+  .nav-btn:disabled:hover { color: var(--ink-soft); border-color: var(--card-border); background: var(--card-bg); transform: none; }
+
+  .card-wrap { flex: 1; min-width: 0; }
+  .counter {
+    text-align: center; font-family: -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 0.7rem;
+    font-variant-numeric: tabular-nums; letter-spacing: 0.06em;
+  }
+
+  .flashcard { perspective: 2200px; cursor: pointer; }
+  .flashcard-inner {
+    display: grid; transition: transform 0.55s cubic-bezier(.2,.8,.2,1);
+    transform-style: preserve-3d;
+    --cat-color: var(--rule-blue);
+  }
+  .flashcard[data-cat="verbe"] .flashcard-inner { --cat-color: var(--cat-verbe); }
+  .flashcard[data-cat="adjectif"] .flashcard-inner { --cat-color: var(--cat-adjectif); }
+  .flashcard[data-cat="nom"] .flashcard-inner { --cat-color: var(--cat-nom); }
+  .flashcard[data-cat="expression"] .flashcard-inner { --cat-color: var(--accent-strong); }
+  .flashcard[data-cat="anecdote"] .flashcard-inner { --cat-color: var(--focus); }
+  .flashcard.is-flipped .flashcard-inner { transform: rotateY(180deg); }
+  @media (prefers-reduced-motion: reduce) {
+    .flashcard-inner { transition: none; }
+  }
+
+  .face {
+    grid-area: 1 / 1;
+    backface-visibility: hidden; -webkit-backface-visibility: hidden;
+    border: 1px solid var(--card-border); border-top: 6px solid var(--cat-color);
+    border-radius: 14px;
+    background:
+      radial-gradient(120% 160% at 15% 0%, color-mix(in srgb, var(--cat-color) 12%, transparent), transparent 55%),
+      var(--card-bg);
+    box-shadow: 0 30px 60px -28px color-mix(in srgb, var(--cat-color) 35%, var(--card-shadow));
+    padding: 3rem 3.2rem;
+    min-height: 440px;
+    display: flex; flex-direction: column;
+  }
+  @media (max-width: 640px) { .face { padding: 2.1rem 1.5rem; min-height: 400px; } }
+  .face.back { transform: rotateY(180deg); }
+
+  .face-top { display: flex; justify-content: space-between; align-items: flex-start; }
+  .tag-type {
+    font-family: -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    font-size: 0.75rem; letter-spacing: 0.12em; text-transform: uppercase; font-weight: 600;
+    color: var(--cat-color); background: color-mix(in srgb, var(--cat-color) 16%, transparent);
+    padding: 0.3rem 0.75rem; border-radius: 999px;
+  }
+  .star-btn {
+    background: none; border: none; cursor: pointer; font-size: 1.4rem; color: var(--ink-faint);
+    line-height: 1; padding: 0;
+  }
+  .star-btn.on { color: var(--accent-strong); }
+
+  .emoji-badge {
+    width: 5.5rem; height: 5.5rem; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 2.7rem; margin: 0.4rem auto 1rem;
+    background: color-mix(in srgb, var(--cat-color) 16%, var(--card-bg));
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--cat-color) 35%, transparent),
+                0 14px 26px -14px color-mix(in srgb, var(--cat-color) 55%, transparent);
+  }
+  @media (max-width: 640px) { .emoji-badge { width: 4.4rem; height: 4.4rem; font-size: 2.1rem; } }
+
+  .word {
+    margin: 0 0 auto; text-align: center;
+    font-size: clamp(2rem, 5.2vw, 3.1rem); font-weight: 600; text-wrap: balance;
+  }
+  .word.is-expr { font-style: italic; font-weight: 500; font-size: clamp(1.6rem, 4.4vw, 2.4rem); }
+  .hint {
+    text-align: center; margin: 0; font-family: -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    font-size: 0.8rem; color: var(--ink-faint); font-style: normal;
+  }
+
+  .back .back-top { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.4rem; }
+  .back-emoji {
+    width: 3.2rem; height: 3.2rem; border-radius: 50%; flex: none;
+    display: flex; align-items: center; justify-content: center; font-size: 1.6rem;
+    background: color-mix(in srgb, var(--cat-color) 16%, var(--card-bg));
+  }
+  .back-word { font-size: 1.3rem; font-weight: 600; }
+  .back-word.is-expr { font-style: italic; font-weight: 500; }
+
+  .section-label {
+    font-family: -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    font-size: 0.74rem; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--cat-color); margin: 0 0 0.35rem; font-weight: 700;
+  }
+  .face.back .section-label:not(:first-of-type) { margin-top: 1.3rem; }
+  .definition, .example { margin: 0; font-size: 1.1rem; line-height: 1.6; }
+  .example { font-style: italic; color: var(--ink-soft); }
+  .example strong { font-style: normal; color: var(--ink); font-weight: 700; background: color-mix(in srgb, var(--cat-color) 18%, transparent); padding: 0.05em 0.3em; border-radius: 4px; }
+  .synonyms { margin: 0; font-size: 1.02rem; color: var(--ink-soft); font-style: italic; }
+
+  .controls-row {
+    margin: 1.75rem 0 0 3rem; display: flex; gap: 1.25rem; align-items: center;
+    font-family: -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    font-size: 0.85rem;
+  }
+  @media (max-width: 640px) { .controls-row { margin-left: 1.5rem; } }
+  .text-btn {
+    background: none; border: none; color: var(--ink-soft); cursor: pointer;
+    padding: 0.2rem 0; border-bottom: 1px solid transparent;
+  }
+  .text-btn:hover { color: var(--accent-strong); border-bottom-color: var(--accent-strong); }
+
+  .empty-state {
+    text-align: center; color: var(--ink-faint); padding: 3rem 1rem; font-style: italic;
+  }
+
+  details.sommaire {
+    margin: 2.75rem 0 0 3rem;
+    font-family: -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  }
+  @media (max-width: 640px) { details.sommaire { margin-left: 1.5rem; } }
+  details.sommaire summary {
+    cursor: pointer; font-size: 0.85rem; color: var(--ink-soft);
+    letter-spacing: 0.02em; padding: 0.3rem 0;
+  }
+  details.sommaire summary:hover { color: var(--ink); }
+  .index-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+    gap: 0.6rem; margin-top: 0.9rem;
+  }
+  .index-tile {
+    text-align: left; background: var(--card-bg); cursor: pointer;
+    border: 1px solid var(--card-border); border-radius: 8px; padding: 0.55rem 0.7rem;
+    color: var(--ink-soft); font-size: 0.82rem; display: flex; gap: 0.55rem; align-items: center;
+  }
+  .index-tile:hover { border-color: var(--accent-strong); color: var(--ink); }
+  .index-tile .idx-emoji { font-size: 1.05rem; }
+  .index-tile .idx-num { font-variant-numeric: tabular-nums; color: var(--ink-faint); font-size: 0.72rem; }
+  .index-tile.learned .idx-num::after { content: " \2713"; color: var(--accent-strong); }
+  .index-tile .idx-word { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  footer.note {
+    margin: 3rem 0 0 3rem; font-family: -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    font-size: 0.76rem; color: var(--ink-faint); max-width: 64ch; line-height: 1.6;
+  }
+  @media (max-width: 640px) { footer.note { margin-left: 1.5rem; } }
+
+  .view-toggle {
+    margin-left: 3rem; margin-bottom: 2rem; display: flex; gap: 0.5rem;
+    font-family: -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  }
+  @media (max-width: 640px) { .view-toggle { margin-left: 1.5rem; } }
+  .view-toggle button {
+    background: none; border: none; border-bottom: 2px solid transparent;
+    color: var(--ink-faint); font-size: 0.95rem; font-weight: 600; padding: 0.3rem 0.1rem 0.6rem;
+    cursor: pointer;
+  }
+  .view-toggle button + button { margin-left: 1.5rem; }
+  .view-toggle button:hover { color: var(--ink); }
+  .view-toggle button.active { color: var(--ink); border-bottom-color: var(--accent-strong); }
+
+  .add-view { margin-left: 3rem; max-width: 640px; }
+  @media (max-width: 640px) { .add-view { margin-left: 1.5rem; } }
+  .add-view p.intro { color: var(--ink-soft); font-style: italic; margin: 0 0 1.75rem; max-width: 60ch; }
+  .add-form {
+    display: grid; gap: 1.1rem; font-family: -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  }
+  .field label {
+    display: block; font-size: 0.76rem; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--rule-blue); font-weight: 700; margin-bottom: 0.35rem;
+  }
+  .field .help { display: block; font-size: 0.76rem; color: var(--ink-faint); margin-top: 0.3rem; font-style: italic; }
+  .field input[type="text"], .field select, .field textarea {
+    width: 100%; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 8px;
+    padding: 0.6rem 0.75rem; color: var(--ink); font-size: 0.95rem; font-family: inherit;
+  }
+  .field textarea { resize: vertical; min-height: 3.2rem; }
+  .field input:focus, .field select:focus, .field textarea:focus { border-color: var(--focus); }
+  .field-row { display: grid; grid-template-columns: 2fr 1fr; gap: 1.1rem; }
+  @media (max-width: 640px) { .field-row { grid-template-columns: 1fr; } }
+
+  .submit-btn {
+    justify-self: start; background: var(--accent-strong); color: var(--accent-ink); border: none;
+    border-radius: 999px; padding: 0.65rem 1.6rem; font-size: 0.92rem; font-weight: 600; cursor: pointer;
+    transition: transform 0.15s ease;
+  }
+  .submit-btn:hover { transform: translateY(-1px); }
+
+  .my-words { margin-top: 2.5rem; }
+  .my-words h2 {
+    font-family: -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    font-size: 0.8rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-soft);
+    margin: 0 0 0.8rem;
+  }
+  .my-word-row {
+    display: flex; align-items: center; gap: 0.75rem; padding: 0.6rem 0.2rem;
+    border-bottom: 1px solid var(--card-border); font-family: -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  }
+  .my-word-row .mw-emoji { font-size: 1.2rem; }
+  .my-word-row .mw-word { font-weight: 600; flex: 1; }
+  .my-word-row .mw-type { font-size: 0.72rem; color: var(--ink-faint); text-transform: uppercase; letter-spacing: 0.06em; }
+  .my-word-row .mw-delete {
+    background: none; border: none; color: var(--ink-faint); cursor: pointer; font-size: 0.95rem; padding: 0.2rem 0.4rem;
+  }
+  .my-word-row .mw-delete:hover { color: var(--accent-strong); }
+  .no-words { color: var(--ink-faint); font-style: italic; font-size: 0.88rem; }
+
+  .sync-bar {
+    display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.4rem;
+    font-family: -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 0.85rem;
+  }
+  .sync-status { color: var(--ink-soft); }
+  .sync-status.st-synced { color: var(--cat-verbe); }
+  .sync-status.st-error { color: var(--accent-strong); }
+  .sync-status.st-syncing { color: var(--focus); }
+  .sync-link {
+    background: none; border: none; color: var(--ink-faint); cursor: pointer; padding: 0.1rem 0;
+    border-bottom: 1px solid transparent; font-size: 0.83rem;
+  }
+  .sync-link:hover { color: var(--ink); border-bottom-color: var(--ink-faint); }
+  .sync-setup {
+    background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 10px;
+    padding: 1rem 1.1rem; margin-bottom: 1.6rem; display: grid; gap: 0.7rem;
+    font-family: -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  }
+  .sync-setup input[type="password"] {
+    width: 100%; background: var(--paper); border: 1px solid var(--card-border); border-radius: 8px;
+    padding: 0.55rem 0.7rem; color: var(--ink); font-size: 0.88rem; font-family: inherit;
+  }
+  .sync-setup input[type="password"]:focus { border-color: var(--focus); }
+  .sync-setup .sync-actions { display: flex; gap: 0.6rem; }
+  .sync-setup .sync-actions button {
+    border-radius: 999px; padding: 0.4rem 1rem; font-size: 0.82rem; cursor: pointer; border: 1px solid var(--card-border);
+    background: var(--paper); color: var(--ink);
+  }
+  .sync-setup .sync-actions button.primary { background: var(--accent-strong); color: var(--accent-ink); border-color: transparent; }
+  .sync-setup .sync-note { font-size: 0.78rem; color: var(--ink-faint); line-height: 1.55; margin: 0; }
+  .sync-setup .sync-note code { background: var(--paper); padding: 0.05em 0.35em; border-radius: 4px; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header class="masthead">
+    <p class="eyebrow">Carnet personnel &mdash; fran&ccedil;ais soutenu</p>
+    <h1>Carnet de mots</h1>
+    <p class="tagline"><span id="total-count">21</span> mots et expressions &agrave; glisser dans une phrase, une r&eacute;union, ou une dispute de comptoir.</p>
+  </header>
+
+  <nav class="view-toggle" id="view-toggle">
+    <button type="button" data-view="carnet" class="active">Carnet</button>
+    <button type="button" data-view="add">Ajouter un mot</button>
+  </nav>
+
+  <section id="view-carnet">
+  <div class="toolbar">
+    <div class="progress-block">
+      <div class="progress-label"><span id="progress-text">0 / 21 retenus</span></div>
+      <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+    </div>
+    <div class="filters" id="filters"></div>
+    <div class="search-wrap">
+      <input type="text" class="search-input" id="search" placeholder="Rechercher un mot&hellip; ( / )" />
+    </div>
+  </div>
+
+  <div class="stage">
+    <button class="nav-btn" id="prev-btn" aria-label="Fiche pr&eacute;c&eacute;dente">&lsaquo;</button>
+    <div class="card-wrap">
+      <div class="counter" id="counter">1 / 21</div>
+      <div class="flashcard" id="flashcard" tabindex="0" role="button" aria-pressed="false" aria-label="Carte m&eacute;mo, appuyer sur espace pour retourner">
+        <div class="flashcard-inner" id="flashcard-inner">
+          <div class="face front">
+            <div class="face-top">
+              <span class="tag-type" id="face-type">Adjectif</span>
+              <button class="star-btn" id="star-btn" aria-label="Marquer comme sue">&#9734;</button>
+            </div>
+            <div class="emoji-badge" id="face-emoji">&#10024;</div>
+            <p class="word" id="face-word">mot</p>
+            <p class="hint">cliquer ou espace pour r&eacute;v&eacute;ler &#8628;</p>
+          </div>
+          <div class="face back" id="face-back">
+            <div class="back-top">
+              <div class="back-emoji" id="back-emoji">&#10024;</div>
+              <div class="back-word" id="back-word">mot</div>
+            </div>
+            <h3 class="section-label">D&eacute;finition</h3>
+            <p class="definition" id="face-def"></p>
+            <h3 class="section-label">Exemple</h3>
+            <p class="example" id="face-example"></p>
+            <h3 class="section-label">Synonymes</h3>
+            <p class="synonyms" id="face-synonyms"></p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <button class="nav-btn" id="next-btn" aria-label="Fiche suivante">&rsaquo;</button>
+  </div>
+
+  <div class="controls-row">
+    <button class="text-btn" id="shuffle-btn">M&eacute;langer les cartes</button>
+    <button class="text-btn" id="reset-btn">R&eacute;initialiser l&rsquo;ordre</button>
+  </div>
+
+  <details class="sommaire">
+    <summary>Sommaire des <span id="sommaire-count">21</span> fiches</summary>
+    <div class="index-grid" id="index-grid"></div>
+  </details>
+
+  <footer class="note" id="footer-note"></footer>
+  </section>
+
+  <section id="view-add" class="add-view" hidden>
+    <p class="intro">Ajoute un mot ou une expression : il rejoint aussitôt ta liste et compte dans le filtre &laquo;&nbsp;Tous&nbsp;&raquo;.</p>
+
+    <div class="sync-bar">
+      <span class="sync-status" id="sync-status">&mdash;</span>
+      <button type="button" class="sync-link" id="sync-refresh-btn">&#128260; Resynchro</button>
+      <button type="button" class="sync-link" id="sync-config-btn">&#9881;&#65039; Config. synchro</button>
+    </div>
+    <div class="sync-setup" id="sync-setup" style="display:none;">
+      <input type="password" id="sync-token-input" autocomplete="off" placeholder="Token GitHub (fine-grained, repo ameliorer-vocabulaire, permission Contents: Read and write)" />
+      <div class="sync-actions">
+        <button type="button" class="primary" id="sync-token-save">Enregistrer</button>
+        <button type="button" id="sync-token-clear">D&eacute;connecter</button>
+      </div>
+      <p class="sync-note">Cr&eacute;e un <em>fine-grained personal access token</em> sur github.com &rarr; Settings &rarr; Developer settings, limit&eacute; au repo <code>ameliorer-vocabulaire</code> (tu peux aussi cocher <code>Tracking-Whales</code> dans le m&ecirc;me token si tu veux un seul token pour les deux), permission <strong>Contents: Read and write</strong> uniquement. Ce site &eacute;tant s&eacute;par&eacute; de <code>positions.html</code>, colle ce token ici une fois par appareil/navigateur m&ecirc;me si c&rsquo;est la m&ecirc;me valeur que celui des snapshots. Il reste stock&eacute; localement, jamais envoy&eacute; ailleurs qu&rsquo;&agrave; l&rsquo;API GitHub.</p>
+    </div>
+
+    <form class="add-form" id="add-form">
+      <div class="field-row">
+        <div class="field">
+          <label for="f-mot">Mot ou expression</label>
+          <input type="text" id="f-mot" required placeholder="ex&nbsp;: pusillanime" />
+        </div>
+        <div class="field">
+          <label for="f-type">Type</label>
+          <select id="f-type">
+            <option value="verbe">Verbe</option>
+            <option value="adjectif">Adjectif</option>
+            <option value="nom">Nom</option>
+            <option value="expression">Expression / locution</option>
+            <option value="anecdote">Anecdote culturelle</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label for="f-emoji">&Eacute;moji</label>
+        <input type="text" id="f-emoji" placeholder="&#128512;" maxlength="8" />
+        <span class="help">Un seul emoji qui illustre le sens. Laisse vide pour &#128221; par d&eacute;faut.</span>
+      </div>
+      <div class="field">
+        <label for="f-def">D&eacute;finition</label>
+        <textarea id="f-def" required placeholder="Description synth&eacute;tique du mot ou de l&rsquo;expression."></textarea>
+      </div>
+      <div class="field">
+        <label for="f-ex">Exemple</label>
+        <textarea id="f-ex" placeholder="Une phrase qui emploie le mot tel quel."></textarea>
+        <span class="help">Le mot sera mis en gras automatiquement s&rsquo;il appara&icirc;t tel quel dans la phrase.</span>
+      </div>
+      <div class="field">
+        <label for="f-syn">Synonymes</label>
+        <input type="text" id="f-syn" placeholder="s&eacute;par&eacute;s par des virgules" />
+      </div>
+      <button type="submit" class="submit-btn">Ajouter &agrave; mon carnet</button>
+    </form>
+
+    <div class="my-words">
+      <h2>Mes ajouts</h2>
+      <div id="my-words-list"></div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var BASE_ENTRIES = [
+    { mot: "s’évertuer", emoji: "💪", type: "verbe",
+      def: "Faire des efforts soutenus, avec insistance, pour parvenir à un résultat — souvent sans y parvenir.",
+      ex: "Elle <strong>s’évertue</strong> à réparer cette vieille horloge depuis trois week-ends.",
+      syn: "s’acharner, s’échiner, se démener, s’obstiner" },
+    { mot: "extatique", emoji: "🤩", type: "adjectif",
+      def: "Qui est plongé dans un état d’extase, de ravissement total, comme suspendu hors de soi.",
+      ex: "Il est resté <strong>extatique</strong> devant la fresque, incapable de détourner le regard.",
+      syn: "ravi, transporté, en extase, émerveillé" },
+    { mot: "les quatre cavaliers de l’apocalypse", emoji: "🐎", type: "expression",
+      def: "Référence biblique (Apocalypse de Jean) à quatre figures montées à cheval — Conquête, Guerre, Famine, Mort — annonçant la fin des temps. Par extension : quatre fléaux ou événements catastrophiques qui surviennent ensemble.",
+      ex: "Inflation, sécheresse, pénurie d’énergie et grève générale : on aurait dit les <strong>quatre cavaliers de l’apocalypse</strong> s’abattre sur le pays la même semaine.",
+      syn: "fléaux conjugués, catastrophes annonciatrices, présages funèstes" },
+    { mot: "montrer patte blanche", emoji: "🐾", type: "expression",
+      def: "Prouver son identité, sa légitimité ou sa bonne foi pour être admis quelque part — comme le loup qui, dans la fable, doit montrer patte blanche pour qu’on lui ouvre.",
+      ex: "Pour accéder aux archives, il faut <strong>montrer patte blanche</strong> : badge, pièce d’identité et autorisation signée.",
+      syn: "donner des gages, prouver sa légitimité, se faire reconnaître" },
+    { mot: "cathartique", emoji: "🌩️", type: "adjectif",
+      def: "Qui procûre une catharsis — qui libère, purge ou soulage d’une tension émotionnelle accumulée.",
+      ex: "Ce concert improvisé après l’annonce a été <strong>cathartique</strong> pour toute la salle.",
+      syn: "libérateur, purgatif, exutoire, salutaire" },
+    { mot: "émulation", emoji: "🔥", type: "nom",
+      def: "Stimulation positive née de la comparaison ou de la compétition avec autrui, qui pousse chacun à se dépasser.",
+      ex: "La rivalité amicale entre les deux ateliers crée une belle <strong>émulation</strong>.",
+      syn: "stimulation, entraînement mutuel, rivalité stimulante" },
+    { mot: "j’ai coutume de dire", emoji: "🗣️", type: "expression",
+      def: "Formule introductive signifiant « j’ai l’habitude de dire », employée pour présenter une maxime ou une réflexion personnelle récurrente.",
+      ex: "<strong>J’ai coutume de dire</strong> que mieux vaut une vérité qui dérange qu’un silence confortable.",
+      syn: "j’ai pour habitude de dire, comme je le dis souvent" },
+    { mot: "sous l’égide de", emoji: "🛡️", type: "expression",
+      def: "Sous la protection, l’autorité morale ou le patronage de quelqu’un ou d’une institution.",
+      ex: "Le colloque s’est tenu <strong>sous l’égide de</strong> l’UNESCO.",
+      syn: "sous l’autorité de, sous le patronage de, sous la houlette de" },
+    { mot: "déguerpir", emoji: "🏃", type: "verbe",
+      def: "Partir précipitamment, quitter les lieux en toute hâte — souvent sous la contrainte ou la peur.",
+      ex: "À l’arrivée du propriétaire, les squatteurs ont <strong>déguerpi</strong> sans demander leur reste.",
+      syn: "s’enfuir, filer, décamper, détaler" },
+    { mot: "velléité", emoji: "💭", type: "nom",
+      def: "Intention ou désir faible, hésitant, qui ne se concrétise presque jamais en action.",
+      ex: "Il a eu quelques <strong>velléités</strong> de reprendre le sport en janvier, vite oubliées en février.",
+      syn: "intention vague, hésitation, désir passager" },
+    { mot: "illusoire", emoji: "🌫️", type: "adjectif",
+      def: "Qui n’a que l’apparence de la réalité, trompeur, sans fondement solide — voué à décevoir.",
+      ex: "L’espoir d’un accord conclu en un jour s’est vite révélé <strong>illusoire</strong>.",
+      syn: "trompeur, fictif, chimérique, vain" },
+    { mot: "cossu", emoji: "🏛️", type: "adjectif",
+      def: "Qui révèle l’aisance matérielle, la richesse — se dit d’un lieu, d’un intérieur ou d’une allure.",
+      ex: "Ils ont grandi dans un quartier <strong>cossu</strong>, aux façades haussmanniennes bien entretenues.",
+      syn: "riche, opulent, aisé, huppé, fortuné" },
+    { mot: "inexorable", emoji: "🌊", type: "adjectif",
+      def: "Qu’on ne peut ni arrêter, ni fléchir, ni attendrir — implacable dans son déroulement.",
+      ex: "Malgré les efforts de l’équipe, le déclin du magasin semblait <strong>inexorable</strong>.",
+      syn: "implacable, inéluctable, imparable, impitoyable" },
+    { mot: "inéluctable", emoji: "♟️", type: "adjectif",
+      def: "Qui ne peut être évité ni empêché — dont l’issue est certaine.",
+      ex: "Face à l’accumulation des signes, la rupture paraissait <strong>inéluctable</strong>.",
+      syn: "inévitable, fatal, certain, inexorable" },
+    { mot: "incommensurable", emoji: "♾️", type: "adjectif",
+      def: "Si grand, si vaste qu’il échappe à toute mesure ou comparaison.",
+      ex: "L’écart de moyens entre les deux candidats était <strong>incommensurable</strong>.",
+      syn: "immense, infini, considérable, sans commune mesure" },
+    { mot: "dans la mesure où", emoji: "⚖️", type: "expression",
+      def: "Introduit une cause ou une condition : « étant donné que », « pour autant que ».",
+      ex: "<strong>Dans la mesure où</strong> vous respectez le délai, aucune pénalité ne sera appliquée.",
+      syn: "étant donné que, puisque, pour autant que, dès lors que" },
+    { mot: "Kevin", emoji: "🏷️", type: "anecdote",
+      def: "Après le succès du film américain <em>Maman, j’ai raté l’avion</em> et de son héros Kevin McCallister, le prénom connaît un pic de popularité en France à la fin des années 1980 et dans les années 1990. Il devient ensuite, de façon assez injuste, la cible d’une stigmatisation sociale : le sociologue Baptiste Coulmont a documenté cet « effet Kevin », montrant comment un prénom peut se retrouver associé à des préjugés de classe sociale, sans rapport avec la personne qui le porte.",
+      ex: "Ce biais social, qu’on surnomme parfois l’effet <strong>Kevin</strong>, a été mis au jour par le sociologue Baptiste Coulmont.",
+      syn: "stigmatisation par le prénom, effet de classe, travaux de Baptiste Coulmont" },
+    { mot: "tête de linotte", emoji: "🐦", type: "expression",
+      def: "Personne étourdie, distraite, qui oublie tout et manque de constance dans ses pensées.",
+      ex: "J’ai encore laissé mes clés à l’intérieur, quelle <strong>tête de linotte</strong> je fais !",
+      syn: "étourdi, écervelé, distrait, tête en l’air" },
+    { mot: "facétieux", emoji: "😏", type: "adjectif",
+      def: "Qui aime plaisanter, faire des farces avec espièglerie — d’un esprit taquin et léger.",
+      ex: "D’un ton <strong>facétieux</strong>, il a glissé une fausse note dans le rapport pour voir qui la remarquerait.",
+      syn: "farceur, espiègle, taquin, malicieux" },
+    { mot: "à telle enseigne que", emoji: "🪧", type: "expression",
+      def: "Introduit une conséquence qui vient confirmer ce qui précède : « à tel point que », « si bien que ».",
+      ex: "Il ne supportait plus le bruit, <strong>à telle enseigne qu’</strong>il a fini par déménager à la campagne.",
+      syn: "à tel point que, si bien que, tant et si bien que" },
+    { mot: "en lieu et place de", emoji: "🔁", type: "expression",
+      def: "À la place de, en remplacement de — souvent dans un contexte officiel ou formel.",
+      ex: "Le directeur adjoint a signé les contrats <strong>en lieu et place du</strong> directeur, retenu à l’étranger.",
+      syn: "à la place de, au lieu de, en remplacement de" }
+  ];
+
+  var TYPE_LABELS = {
+    verbe: "Verbe", adjectif: "Adjectif", nom: "Nom",
+    expression: "Expression", anecdote: "Anecdote culturelle"
+  };
+  var GROUP_LABELS = { tous: "Tous", mots: "Mots", expressions: "Expressions", anecdote: "Anecdote" };
+  var GROUP_OF = { verbe: "mots", adjectif: "mots", nom: "mots", expression: "expressions", anecdote: "anecdote" };
+
+  BASE_ENTRIES.forEach(function (e, i) { e.id = i; e.group = GROUP_OF[e.type]; });
+
+  // ---------- Mots ajout&eacute;s (synchro GitHub, cach&eacute;s en local) ----------
+  // Même schéma que "Mes Snapshots" dans positions.html (repo Tracking-Whales) :
+  // localStorage n'est qu'un cache rapide/hors-ligne, le fichier de référence
+  // est words.json committé dans CE dépôt (ameliorer-vocabulaire) via la
+  // Contents API. Site distinct de positions.html, donc token à coller ici
+  // séparément (même valeur possible si le PAT est scoped sur les deux repos).
+  // Chaque ajout/suppression est mis en file puis rejoué par-dessus la version
+  // distante la plus fraîche (compare-and-swap avec retry sur 409), pour que
+  // deux appareils qui modifient au même moment fusionnent au lieu de s'écraser.
+  var GH_OWNER = "sebmgn";
+  var GH_REPO = "ameliorer-vocabulaire";
+  var GH_BRANCH = "main";
+  var GH_WORDS_PATH = "words.json";
+  var GH_TOKEN_KEY = "ghSyncToken";
+  var CUSTOM_KEY = "carnet-de-mots-custom";
+  var WORDS_QUEUE_KEY = "carnetWordsQueue";
+  var WORDS_SHA_KEY = "carnetWordsSha";
+  var WORDS_MIGRATED_KEY = "carnetWordsMigrated";
+  var WORDS_SYNC_MAX_RETRIES = 4;
+  var wordsSyncInFlight = false;
+
+  var customEntries = [];
+  try {
+    customEntries = JSON.parse(localStorage.getItem(CUSTOM_KEY) || "[]");
+  } catch (e) { customEntries = []; }
+  customEntries.forEach(function (e) { e.group = GROUP_OF[e.type] || "mots"; });
+
+  function persistCustom() {
+    localStorage.setItem(CUSTOM_KEY, JSON.stringify(customEntries));
+  }
+  function loadWordsQueue() {
+    try { return JSON.parse(localStorage.getItem(WORDS_QUEUE_KEY) || "[]"); } catch (e) { return []; }
+  }
+  function saveWordsQueue(q) {
+    localStorage.setItem(WORDS_QUEUE_KEY, JSON.stringify(q));
+  }
+  function getGhToken() {
+    try { return localStorage.getItem(GH_TOKEN_KEY) || ""; } catch (e) { return ""; }
+  }
+  function setGhToken(t) {
+    try { if (t) localStorage.setItem(GH_TOKEN_KEY, t); else localStorage.removeItem(GH_TOKEN_KEY); } catch (e) { /* ignore */ }
+  }
+  function b64EncodeUtf8(str) { return btoa(unescape(encodeURIComponent(str))); }
+  function b64DecodeUtf8(str) { return decodeURIComponent(escape(atob(str))); }
+  function ghHeaders() {
+    var h = { "Accept": "application/vnd.github+json" };
+    var t = getGhToken();
+    if (t) h["Authorization"] = "Bearer " + t;
+    return h;
+  }
+  function ghWordsUrl() {
+    return "https://api.github.com/repos/" + GH_OWNER + "/" + GH_REPO + "/contents/" + GH_WORDS_PATH;
+  }
+  function applyWordOpToList(list, op) {
+    if (op.type === "add") return list.concat([op.entry]);
+    if (op.type === "delete") return list.filter(function (e) { return e.id !== op.id; });
+    if (op.type === "seed") return op.list;
+    return list;
+  }
+  async function ghFetchWords() {
+    var res = await fetch(ghWordsUrl() + "?ref=" + GH_BRANCH, { headers: ghHeaders() });
+    if (res.status === 404) return { list: [], sha: null };
+    if (!res.ok) throw new Error("GitHub GET " + res.status);
+    var data = await res.json();
+    var list;
+    try { list = JSON.parse(b64DecodeUtf8((data.content || "").replace(/\n/g, ""))); } catch (e) { list = []; }
+    return { list: Array.isArray(list) ? list : [], sha: data.sha };
+  }
+  async function ghPutWords(list, sha) {
+    var body = {
+      message: "words: sync (" + list.length + ")",
+      content: b64EncodeUtf8(JSON.stringify(list, null, 2)),
+      branch: GH_BRANCH
+    };
+    if (sha) body.sha = sha;
+    var res = await fetch(ghWordsUrl(), {
+      method: "PUT",
+      headers: Object.assign({ "Content-Type": "application/json" }, ghHeaders()),
+      body: JSON.stringify(body)
+    });
+    if (res.status === 409 || res.status === 422) { var conflictErr = new Error("conflict"); conflictErr.conflict = true; throw conflictErr; }
+    if (!res.ok) throw new Error("GitHub PUT " + res.status);
+    var data = await res.json();
+    return data.content.sha;
+  }
+  function updateSyncStatus(state) {
+    var el = document.getElementById("sync-status");
+    if (!el) return;
+    var now = new Date().toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
+    var labels = {
+      "no-token": "🔑 Synchro non configurée — mots locaux à cet appareil seulement",
+      "syncing": "🔄 Synchronisation…",
+      "synced": "✅ Synchronisé à " + now,
+      "error": "⚠️ Erreur de synchro — sauvegardé localement, nouvelle tentative automatique"
+    };
+    el.textContent = labels[state] || "—";
+    el.className = "sync-status st-" + state;
+  }
+  async function syncWordsNow() {
+    if (wordsSyncInFlight) return;
+    if (!getGhToken()) { updateSyncStatus("no-token"); return; }
+    wordsSyncInFlight = true;
+    updateSyncStatus("syncing");
+    try {
+      for (var attempt = 0; attempt < WORDS_SYNC_MAX_RETRIES; attempt++) {
+        var remote = await ghFetchWords();
+        var queue = loadWordsQueue();
+        var bootstrapping = remote.sha === null && !queue.length && localStorage.getItem(WORDS_MIGRATED_KEY) !== "1" && customEntries.length > 0;
+        if (bootstrapping) queue = [{ type: "seed", list: customEntries }];
+
+        if (!queue.length) {
+          customEntries = remote.list;
+          persistCustom();
+          localStorage.setItem(WORDS_SHA_KEY, remote.sha || "");
+          localStorage.setItem(WORDS_MIGRATED_KEY, "1");
+          updateSyncStatus("synced");
+          rebuildEntries(); syncOrderWithEntries(); buildFilters(); renderMyWords(); render();
+          return;
+        }
+        var merged = queue.reduce(applyWordOpToList, remote.list);
+        try {
+          var newSha = await ghPutWords(merged, remote.sha);
+          customEntries = merged;
+          persistCustom();
+          saveWordsQueue([]);
+          localStorage.setItem(WORDS_SHA_KEY, newSha);
+          localStorage.setItem(WORDS_MIGRATED_KEY, "1");
+          updateSyncStatus("synced");
+          rebuildEntries(); syncOrderWithEntries(); buildFilters(); renderMyWords(); render();
+          return;
+        } catch (e) {
+          if (e && e.conflict) continue;
+          throw e;
+        }
+      }
+      throw new Error("Trop de conflits de synchro, réessaie plus tard.");
+    } catch (e) {
+      console.error("Words sync error", e);
+      updateSyncStatus("error");
+    } finally {
+      wordsSyncInFlight = false;
+    }
+  }
+  function enqueueWordOp(op) {
+    customEntries = applyWordOpToList(customEntries, op);
+    persistCustom();
+    var q = loadWordsQueue();
+    q.push(op);
+    saveWordsQueue(q);
+    rebuildEntries(); syncOrderWithEntries(); buildFilters(); renderMyWords(); render();
+    syncWordsNow();
+  }
+
+  var ENTRIES = [];
+  function rebuildEntries() {
+    ENTRIES = BASE_ENTRIES.concat(customEntries);
+  }
+  rebuildEntries();
+
+  function entryById(id) {
+    return ENTRIES.filter(function (e) { return e.id === id; })[0];
+  }
+
+  function escapeHtml(s) {
+    return String(s || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+
+  function autoBold(exampleHtml, motHtml) {
+    if (!exampleHtml || !motHtml) return exampleHtml;
+    var idx = exampleHtml.toLowerCase().indexOf(motHtml.toLowerCase());
+    if (idx === -1) return exampleHtml;
+    return exampleHtml.slice(0, idx) + "<strong>" + exampleHtml.slice(idx, idx + motHtml.length) + "</strong>" + exampleHtml.slice(idx + motHtml.length);
+  }
+
+  var LEARNED_KEY = "carnet-de-mots-appris";
+  var learned = new Set();
+  try {
+    var saved = JSON.parse(localStorage.getItem(LEARNED_KEY) || "[]");
+    saved.forEach(function (id) { learned.add(id); });
+  } catch (e) { /* ignore corrupt storage */ }
+
+  var order = ENTRIES.map(function (e) { return e.id; });
+
+  function syncOrderWithEntries() {
+    var validIds = {};
+    ENTRIES.forEach(function (e) { validIds[e.id] = true; });
+    order = order.filter(function (id) { return validIds[id]; });
+    ENTRIES.forEach(function (e) {
+      if (order.indexOf(e.id) === -1) order.push(e.id);
+    });
+  }
+
+  var activeGroup = "tous";
+  var query = "";
+  var pos = 0;
+  var currentView = "carnet";
+
+  function persist() {
+    localStorage.setItem(LEARNED_KEY, JSON.stringify(Array.from(learned)));
+  }
+
+  function matchesFilter(entry) {
+    var groupOk = activeGroup === "tous" || entry.group === activeGroup;
+    if (!groupOk) return false;
+    if (!query) return true;
+    var q = query.toLowerCase();
+    return entry.mot.toLowerCase().indexOf(q) !== -1 ||
+           entry.def.toLowerCase().indexOf(q) !== -1 ||
+           entry.syn.toLowerCase().indexOf(q) !== -1;
+  }
+
+  function currentList() {
+    return order.map(entryById).filter(function (e) { return e; }).filter(matchesFilter);
+  }
+
+  var flashcardEl = document.getElementById("flashcard");
+  var counterEl = document.getElementById("counter");
+  var typeEl = document.getElementById("face-type");
+  var emojiEl = document.getElementById("face-emoji");
+  var wordEl = document.getElementById("face-word");
+  var backEmojiEl = document.getElementById("back-emoji");
+  var backWordEl = document.getElementById("back-word");
+  var defEl = document.getElementById("face-def");
+  var exEl = document.getElementById("face-example");
+  var synEl = document.getElementById("face-synonyms");
+  var starBtn = document.getElementById("star-btn");
+  var prevBtn = document.getElementById("prev-btn");
+  var nextBtn = document.getElementById("next-btn");
+  var progressText = document.getElementById("progress-text");
+  var progressFill = document.getElementById("progress-fill");
+  var filtersEl = document.getElementById("filters");
+  var searchInput = document.getElementById("search");
+  var indexGrid = document.getElementById("index-grid");
+  var cardWrap = document.querySelector(".card-wrap");
+
+  function buildFilters() {
+    filtersEl.innerHTML = "";
+    ["tous", "mots", "expressions", "anecdote"].forEach(function (g) {
+      var count = ENTRIES.filter(function (e) { return g === "tous" || e.group === g; }).length;
+      var btn = document.createElement("button");
+      btn.className = "filter-btn" + (g === activeGroup ? " active" : "");
+      btn.textContent = GROUP_LABELS[g] + " (" + count + ")";
+      btn.addEventListener("click", function () {
+        activeGroup = g;
+        pos = 0;
+        buildFilters();
+        render();
+      });
+      filtersEl.appendChild(btn);
+    });
+  }
+
+  function updateProgress() {
+    var total = ENTRIES.length;
+    var count = learned.size;
+    progressText.textContent = count + " / " + total + " retenus";
+    progressFill.style.width = (total ? (count / total * 100) : 0) + "%";
+    var totalCountEl = document.getElementById("total-count");
+    var sommaireCountEl = document.getElementById("sommaire-count");
+    if (totalCountEl) totalCountEl.textContent = total;
+    if (sommaireCountEl) sommaireCountEl.textContent = total;
+  }
+
+  function buildIndex() {
+    indexGrid.innerHTML = "";
+    ENTRIES.forEach(function (entry, i) {
+      var tile = document.createElement("button");
+      tile.className = "index-tile" + (learned.has(entry.id) ? " learned" : "");
+      tile.innerHTML = '<span class="idx-emoji">' + entry.emoji + '</span>' +
+                        '<span class="idx-num">' + String(i + 1).padStart(2, "0") + '</span>' +
+                        '<span class="idx-word">' + entry.mot + '</span>';
+      tile.addEventListener("click", function () {
+        var list = currentList();
+        var idx = list.indexOf(entry);
+        if (idx === -1) {
+          activeGroup = "tous"; query = ""; searchInput.value = "";
+          buildFilters();
+          list = currentList();
+          idx = list.indexOf(entry);
+        }
+        pos = idx;
+        render();
+        flashcardEl.scrollIntoView({ behavior: "smooth", block: "center" });
+      });
+      indexGrid.appendChild(tile);
+    });
+  }
+
+  function render() {
+    var list = currentList();
+    if (list.length === 0) {
+      cardWrap.innerHTML = '<p class="empty-state">Aucune fiche ne correspond à cette recherche.</p>';
+      counterEl.textContent = "0 / " + ENTRIES.length;
+      prevBtn.disabled = true; nextBtn.disabled = true;
+      updateProgress();
+      buildIndex();
+      return;
+    }
+    if (pos >= list.length) pos = list.length - 1;
+    if (pos < 0) pos = 0;
+
+    if (!document.getElementById("flashcard")) {
+      cardWrap.innerHTML =
+        '<div class="counter" id="counter"></div>' +
+        '<div class="flashcard" id="flashcard" tabindex="0" role="button" aria-pressed="false" aria-label="Carte mémo, appuyer sur espace pour retourner">' +
+          '<div class="flashcard-inner" id="flashcard-inner">' +
+            '<div class="face front">' +
+              '<div class="face-top">' +
+                '<span class="tag-type" id="face-type"></span>' +
+                '<button class="star-btn" id="star-btn" aria-label="Marquer comme sue">&#9734;</button>' +
+              '</div>' +
+              '<div class="emoji-badge" id="face-emoji"></div>' +
+              '<p class="word" id="face-word"></p>' +
+              '<p class="hint">cliquer ou espace pour révéler &#8628;</p>' +
+            '</div>' +
+            '<div class="face back">' +
+              '<div class="back-top"><div class="back-emoji" id="back-emoji"></div><div class="back-word" id="back-word"></div></div>' +
+              '<h3 class="section-label">Définition</h3><p class="definition" id="face-def"></p>' +
+              '<h3 class="section-label">Exemple</h3><p class="example" id="face-example"></p>' +
+              '<h3 class="section-label">Synonymes</h3><p class="synonyms" id="face-synonyms"></p>' +
+            '</div>' +
+          '</div>' +
+        '</div>';
+      rebindCardRefs();
+    }
+
+    var entry = list[pos];
+    flashcardEl.classList.remove("is-flipped");
+    flashcardEl.setAttribute("aria-pressed", "false");
+    flashcardEl.setAttribute("data-cat", entry.type);
+    counterEl.textContent = (pos + 1) + " / " + list.length;
+    typeEl.textContent = TYPE_LABELS[entry.type];
+    emojiEl.textContent = entry.emoji;
+    backEmojiEl.textContent = entry.emoji;
+    wordEl.textContent = entry.mot;
+    wordEl.classList.toggle("is-expr", entry.type === "expression");
+    backWordEl.textContent = entry.mot;
+    backWordEl.classList.toggle("is-expr", entry.type === "expression");
+    defEl.innerHTML = entry.def;
+    exEl.innerHTML = "« " + entry.ex + " »";
+    synEl.textContent = entry.syn;
+    starBtn.innerHTML = learned.has(entry.id) ? "&#9733;" : "&#9734;";
+    starBtn.classList.toggle("on", learned.has(entry.id));
+    starBtn.onclick = function (ev) {
+      ev.stopPropagation();
+      if (learned.has(entry.id)) learned.delete(entry.id); else learned.add(entry.id);
+      persist();
+      starBtn.innerHTML = learned.has(entry.id) ? "&#9733;" : "&#9734;";
+      starBtn.classList.toggle("on", learned.has(entry.id));
+      updateProgress();
+      buildIndex();
+    };
+
+    prevBtn.disabled = pos === 0;
+    nextBtn.disabled = pos === list.length - 1;
+
+    updateProgress();
+    buildIndex();
+  }
+
+  function rebindCardRefs() {
+    flashcardEl = document.getElementById("flashcard");
+    counterEl = document.getElementById("counter");
+    typeEl = document.getElementById("face-type");
+    emojiEl = document.getElementById("face-emoji");
+    wordEl = document.getElementById("face-word");
+    backEmojiEl = document.getElementById("back-emoji");
+    backWordEl = document.getElementById("back-word");
+    defEl = document.getElementById("face-def");
+    exEl = document.getElementById("face-example");
+    synEl = document.getElementById("face-synonyms");
+    starBtn = document.getElementById("star-btn");
+    flashcardEl.addEventListener("click", toggleFlip);
+    flashcardEl.addEventListener("keydown", function (e) {
+      if (e.key === " " || e.key === "Enter") { e.preventDefault(); toggleFlip(); }
+    });
+  }
+
+  function toggleFlip() {
+    var isFlipped = flashcardEl.classList.toggle("is-flipped");
+    flashcardEl.setAttribute("aria-pressed", String(isFlipped));
+  }
+
+  function go(delta) {
+    var list = currentList();
+    if (list.length === 0) return;
+    pos = Math.max(0, Math.min(list.length - 1, pos + delta));
+    render();
+  }
+
+  function shuffle() {
+    for (var i = order.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = order[i]; order[i] = order[j]; order[j] = tmp;
+    }
+    pos = 0;
+    render();
+  }
+
+  function resetOrder() {
+    order = ENTRIES.map(function (e) { return e.id; });
+    pos = 0;
+    render();
+  }
+
+  prevBtn.addEventListener("click", function () { go(-1); });
+  nextBtn.addEventListener("click", function () { go(1); });
+  document.getElementById("shuffle-btn").addEventListener("click", shuffle);
+  document.getElementById("reset-btn").addEventListener("click", resetOrder);
+
+  searchInput.addEventListener("input", function () {
+    query = searchInput.value;
+    pos = 0;
+    render();
+  });
+
+  document.addEventListener("keydown", function (e) {
+    var tag = document.activeElement.tagName;
+    if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") {
+      if (e.key === "Escape") { document.activeElement.blur(); }
+      return;
+    }
+    if (currentView !== "carnet") return;
+    if (e.key === "/") { e.preventDefault(); searchInput.focus(); return; }
+    if (e.key === "ArrowRight") { go(1); }
+    else if (e.key === "ArrowLeft") { go(-1); }
+    else if (e.key.toLowerCase() === "m") { shuffle(); }
+  });
+
+  document.getElementById("footer-note").innerHTML =
+    "Deux lignes de la liste d’origine ont été traitées à part : « voir histoire du mot Kevin » est devenue la fiche 17, une anecdote culturelle plutôt qu’une définition ; et « elles ne sont pas séquentielles » a été lue comme une consigne plutôt qu’une fiche &mdash; d’où le bouton « Mélanger les cartes ». Le suivi « retenu » et tes mots ajoutés sont sauvegardés localement dans ce navigateur.";
+
+  var viewToggleEl = document.getElementById("view-toggle");
+  var viewCarnetEl = document.getElementById("view-carnet");
+  var viewAddEl = document.getElementById("view-add");
+
+  viewToggleEl.addEventListener("click", function (e) {
+    var btn = e.target.closest("button[data-view]");
+    if (!btn) return;
+    currentView = btn.getAttribute("data-view");
+    Array.prototype.forEach.call(viewToggleEl.querySelectorAll("button"), function (b) {
+      b.classList.toggle("active", b === btn);
+    });
+    viewCarnetEl.hidden = currentView !== "carnet";
+    viewAddEl.hidden = currentView !== "add";
+    if (currentView === "add") renderMyWords();
+  });
+
+  var addForm = document.getElementById("add-form");
+  var myWordsList = document.getElementById("my-words-list");
+
+  addForm.addEventListener("submit", function (e) {
+    e.preventDefault();
+    var motRaw = document.getElementById("f-mot").value.trim();
+    var defRaw = document.getElementById("f-def").value.trim();
+    if (!motRaw || !defRaw) return;
+    var type = document.getElementById("f-type").value;
+    var emoji = document.getElementById("f-emoji").value.trim() || "📝";
+    var exRaw = document.getElementById("f-ex").value.trim();
+    var synRaw = document.getElementById("f-syn").value.trim();
+
+    var mot = escapeHtml(motRaw);
+    var def = escapeHtml(defRaw);
+    var ex = autoBold(escapeHtml(exRaw), mot);
+
+    var entry = {
+      id: "c" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+      mot: mot, type: type, group: GROUP_OF[type] || "mots",
+      emoji: emoji, def: def, ex: ex, syn: synRaw
+    };
+    enqueueWordOp({ type: "add", entry: entry });
+    addForm.reset();
+  });
+
+  function renderMyWords() {
+    myWordsList.innerHTML = "";
+    if (customEntries.length === 0) {
+      myWordsList.innerHTML = '<p class="no-words">Tu n’as pas encore ajouté de mot personnel.</p>';
+      return;
+    }
+    customEntries.forEach(function (entry, i) {
+      var row = document.createElement("div");
+      row.className = "my-word-row";
+      row.innerHTML =
+        '<span class="mw-emoji">' + entry.emoji + '</span>' +
+        '<span class="mw-word">' + entry.mot + '</span>' +
+        '<span class="mw-type">' + TYPE_LABELS[entry.type] + '</span>';
+      var delBtn = document.createElement("button");
+      delBtn.className = "mw-delete";
+      delBtn.setAttribute("aria-label", "Supprimer ce mot");
+      delBtn.innerHTML = "&#10005;";
+      delBtn.addEventListener("click", function () {
+        enqueueWordOp({ type: "delete", id: entry.id });
+      });
+      row.appendChild(delBtn);
+      myWordsList.appendChild(row);
+    });
+  }
+
+  var syncSetupEl = document.getElementById("sync-setup");
+  var syncTokenInput = document.getElementById("sync-token-input");
+  document.getElementById("sync-config-btn").addEventListener("click", function () {
+    syncSetupEl.style.display = syncSetupEl.style.display === "none" ? "grid" : "none";
+  });
+  document.getElementById("sync-refresh-btn").addEventListener("click", function () { syncWordsNow(); });
+  document.getElementById("sync-token-save").addEventListener("click", function () {
+    var v = syncTokenInput.value.trim();
+    if (!v) return;
+    setGhToken(v);
+    syncTokenInput.value = "";
+    syncSetupEl.style.display = "none";
+    syncWordsNow();
+  });
+  document.getElementById("sync-token-clear").addEventListener("click", function () {
+    setGhToken("");
+    updateSyncStatus("no-token");
+  });
+
+  buildFilters();
+  rebindCardRefs();
+  syncOrderWithEntries();
+  render();
+  renderMyWords();
+  updateSyncStatus(getGhToken() ? "syncing" : "no-token");
+  syncWordsNow();
+  setInterval(syncWordsNow, 60000);
+})();
+</script>
+</body>
+</html>

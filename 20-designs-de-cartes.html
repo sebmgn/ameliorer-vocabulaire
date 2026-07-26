@@ -1,0 +1,535 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>20 pistes pour la carte mémo</title>
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background:
+      radial-gradient(circle at 1px 1px, rgba(255,255,255,0.05) 1px, transparent 1.6px) 0 0/22px 22px,
+      radial-gradient(120% 90% at 50% -10%, #23262c 0%, #17181c 55%, #101114 100%);
+    color: #EDEAE2;
+    font-family: -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    min-height: 100vh;
+  }
+  .wrap { max-width: 1420px; margin: 0 auto; padding: 4rem 2rem 6rem; }
+  header { margin-bottom: 3.5rem; max-width: 70ch; }
+  .eyebrow {
+    font: 700 0.72rem/1 ui-monospace, 'Cascadia Mono', 'SF Mono', Consolas, monospace;
+    letter-spacing: 0.16em; text-transform: uppercase; color: #E8B84B; margin: 0 0 1rem;
+  }
+  h1 {
+    font-family: Georgia, 'Palatino Linotype', serif; font-style: italic; font-weight: 600;
+    font-size: clamp(2.1rem, 4.5vw, 3.2rem); margin: 0 0 1rem; text-wrap: balance; color: #FBFAF4;
+  }
+  header p { margin: 0; color: #9BA0A6; font-size: 1.05rem; line-height: 1.6; }
+  header p + p { margin-top: 0.9rem; }
+  .gallery {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 3.2rem 2.4rem;
+  }
+  .tile { display: flex; flex-direction: column; gap: 1.1rem; }
+  .tile:hover .demo { transform: translateY(-5px); }
+  .demo {
+    position: relative; border-radius: 4px; transition: transform 0.25s ease;
+    display: flex; flex-direction: column; min-height: 340px;
+  }
+  figcaption { font-size: 0.85rem; color: #C7CBD1; line-height: 1.5; }
+  figcaption b { display: block; color: #FBFAF4; font-size: 0.92rem; margin-bottom: 0.15rem; }
+  figcaption span { color: #7C828A; font-size: 0.8rem; }
+  @media (prefers-reduced-motion: reduce) { .demo, .tile:hover .demo { transition: none; transform: none; } }
+
+  /* ---------- 01 Cahier d'écolier ---------- */
+  .v1 {
+    background:
+      repeating-linear-gradient(to bottom, transparent 0 27px, rgba(78,110,142,0.25) 27px 28px),
+      #FBF7EC;
+    border: 1px solid #DAD4C0; border-radius: 8px; padding: 1.8rem 1.8rem 1.8rem 2.6rem; color: #24303E;
+  }
+  .v1::before { content: ""; position: absolute; top: 0; bottom: 0; left: 1.5rem; width: 2px; background: #B23A3E; }
+  .v1 .demo-tag { font: 700 0.65rem/1 ui-monospace, monospace; letter-spacing: 0.1em; color: #4E6E8E; text-transform: uppercase; }
+  .v1 .demo-emoji { font-size: 2.1rem; margin: 0.6rem 0; }
+  .v1 .demo-word { font-family: Georgia, serif; font-size: 1.7rem; font-weight: 700; margin: 0 0 0.5rem; }
+  .v1 .demo-sub { font-family: Georgia, serif; font-style: italic; font-size: 0.92rem; color: #5B6A73; }
+
+  /* ---------- 02 Ticket de transport ---------- */
+  .v2 {
+    background: #F4C77C; color: #4A2E12; padding: 1.6rem 1.7rem; border-radius: 2px;
+    background-image:
+      radial-gradient(circle at 0 50%, #17181c 9px, transparent 10px),
+      radial-gradient(circle at 100% 50%, #17181c 9px, transparent 10px);
+  }
+  .v2::after {
+    content: ""; position: absolute; left: 1.4rem; right: 1.4rem; top: 4.4rem; height: 0;
+    border-top: 2px dashed rgba(74,46,18,0.4);
+  }
+  .v2 .demo-tag { font: 800 0.7rem/1 ui-monospace, monospace; letter-spacing: 0.14em; }
+  .v2 .demo-emoji { position: absolute; top: 1.5rem; right: 1.6rem; font-size: 1.6rem; }
+  .v2 .demo-word { font-family: 'Courier New', monospace; font-weight: 800; font-size: 1.5rem; margin: 2.4rem 0 0.3rem; }
+  .v2 .demo-sub { font-family: 'Courier New', monospace; font-size: 0.82rem; opacity: 0.85; margin-top: 1.6rem; }
+
+  /* ---------- 03 Post-it ---------- */
+  .v3 {
+    background: #FFF3A3; color: #4A431A; padding: 2rem 1.8rem 1.6rem; transform: rotate(-3.5deg);
+    box-shadow: 10px 16px 26px -12px rgba(0,0,0,0.45);
+  }
+  .tile:hover .v3 { transform: rotate(-3.5deg) translateY(-5px); }
+  .v3::before {
+    content: ""; position: absolute; top: -0.6rem; left: 50%; transform: translateX(-50%) rotate(-2deg);
+    width: 4.5rem; height: 1.3rem; background: rgba(220,220,210,0.55); border: 1px solid rgba(0,0,0,0.05);
+  }
+  .v3 .demo-emoji { font-size: 1.8rem; }
+  .v3 .demo-word { font-family: 'Segoe Print', 'Bradley Hand', cursive; font-size: 1.9rem; margin: 0.4rem 0; }
+  .v3 .demo-sub { font-family: 'Segoe Print', 'Bradley Hand', cursive; font-size: 1.05rem; color: #2E5AA8; }
+
+  /* ---------- 04 Polaroid ---------- */
+  .v4 {
+    background: #FBFBF8; padding: 0.9rem 0.9rem 1.6rem; transform: rotate(2deg);
+    box-shadow: 8px 14px 24px -10px rgba(0,0,0,0.5); color: #2A2A28;
+  }
+  .tile:hover .v4 { transform: rotate(2deg) translateY(-5px); }
+  .v4 .demo-photo {
+    height: 190px; border-radius: 2px; display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(160deg, #FFD9A0, #FF8FA3 55%, #6A5ACD);
+    font-size: 4.2rem;
+  }
+  .v4 .demo-word { font-family: 'Segoe Print', 'Bradley Hand', cursive; font-size: 1.35rem; text-align: center; margin: 0.9rem 0 0.2rem; }
+  .v4 .demo-sub { font-family: 'Segoe Print', 'Bradley Hand', cursive; font-size: 0.85rem; text-align: center; color: #6B6B66; }
+
+  /* ---------- 05 Etiquette bagage ---------- */
+  .v5 {
+    background: #C9A46A; color: #3B2A14; padding: 1.8rem 1.6rem;
+    clip-path: polygon(0 0, 82% 0, 100% 50%, 82% 100%, 0 100%);
+  }
+  .v5::before {
+    content: ""; position: absolute; top: 1.3rem; right: 2.6rem; width: 14px; height: 14px;
+    border-radius: 50%; background: #17181c;
+  }
+  .v5 .demo-tag { font: 800 0.68rem/1 ui-monospace, monospace; letter-spacing: 0.1em; }
+  .v5 .demo-emoji { font-size: 1.9rem; margin: 0.6rem 0 0.3rem; }
+  .v5 .demo-word { font-family: 'Courier New', monospace; font-weight: 700; font-size: 1.6rem; }
+  .v5 .demo-sub { font-family: 'Courier New', monospace; font-size: 0.78rem; margin-top: 0.8rem; letter-spacing: 0.02em; }
+
+  /* ---------- 06 Neon arcade ---------- */
+  .v6 {
+    background: #0B0C10; padding: 2rem 1.6rem; border-radius: 10px;
+    box-shadow: 0 0 0 1px #2a2140, 0 0 22px 2px rgba(255,60,180,0.35), 0 0 46px 6px rgba(60,220,255,0.12);
+  }
+  .v6 .demo-emoji { font-size: 2.6rem; filter: drop-shadow(0 0 10px rgba(255,120,220,0.8)); }
+  .v6 .demo-word {
+    font-family: 'Arial Black', Impact, sans-serif; font-size: 1.55rem; margin: 0.7rem 0 0.4rem; text-transform: uppercase;
+    background: linear-gradient(90deg, #FF3CB4, #3CDCFF); -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .v6 .demo-sub { font-family: ui-monospace, monospace; font-size: 0.78rem; color: #8BE9FD; letter-spacing: 0.05em; }
+
+  /* ---------- 07 Planche naturaliste ---------- */
+  .v7 {
+    background: #F1EAD8; color: #35301F; padding: 1.6rem; border: 1px solid #8A7A52;
+  }
+  .v7::before { content: ""; position: absolute; inset: 6px; border: 1px solid #8A7A52; pointer-events: none; }
+  .v7 .demo-emoji { font-size: 3.4rem; text-align: center; margin: 1rem 0; display: block; }
+  .v7 .demo-word { font-family: Georgia, serif; font-style: italic; font-size: 1.15rem; text-align: center; }
+  .v7 .demo-sub {
+    font-family: Georgia, serif; font-size: 0.78rem; text-align: center; letter-spacing: 0.03em;
+    text-transform: uppercase; color: #6B6142; margin-top: 0.5rem;
+  }
+
+  /* ---------- 08 Fiche recette ---------- */
+  .v8 {
+    background: #FBEFE1; color: #5A3A22; padding: 2.2rem 1.7rem 1.6rem; border-radius: 0 0 10px 10px;
+  }
+  .v8::before {
+    content: ""; position: absolute; top: -0.9rem; left: 50%; transform: translateX(-50%);
+    background: #C97A2B; color: #FBEFE1; font: 700 0.7rem/1 Georgia, serif; padding: 0.5rem 1.2rem;
+    border-radius: 999px; content: "Tournure";
+  }
+  .v8 .demo-emoji { font-size: 2rem; }
+  .v8 .demo-word { font-family: Georgia, serif; font-weight: 700; font-size: 1.4rem; margin: 0.6rem 0 0.7rem; }
+  .v8 .demo-sub { font-family: Georgia, serif; font-size: 0.86rem; }
+  .v8 .demo-sub::before { content: "— "; }
+
+  /* ---------- 09 Tarot ---------- */
+  .v9 {
+    background: #171335; color: #E9CE84; padding: 2rem 1.4rem; border: 2px solid #E9CE84; min-height: 400px;
+  }
+  .v9::before { content: ""; position: absolute; inset: 8px; border: 1px solid rgba(233,206,132,0.5); }
+  .v9 .demo-num { font-family: Georgia, serif; font-size: 0.75rem; letter-spacing: 0.2em; text-align: center; display: block; }
+  .v9 .demo-emoji { font-size: 2.6rem; text-align: center; display: block; margin: 1.1rem 0; }
+  .v9 .demo-word { font-family: Georgia, serif; font-variant: small-caps; font-size: 1.3rem; text-align: center; letter-spacing: 0.04em; }
+  .v9 .demo-sub { font-family: Georgia, serif; font-style: italic; font-size: 0.8rem; text-align: center; color: #C7B27A; margin-top: 0.6rem; }
+
+  /* ---------- 10 Laissez-passer ---------- */
+  .v10 { background: #EDEEF0; color: #1C232B; padding: 0; overflow: hidden; border-radius: 8px; min-height: 200px; }
+  .v10 .demo-strip { height: 10px; background: #2662A8; }
+  .v10 .demo-body { display: flex; gap: 1rem; padding: 1.3rem 1.4rem; align-items: center; }
+  .v10 .demo-avatar {
+    width: 3.4rem; height: 3.4rem; border-radius: 50%; background: #2662A8; flex: none;
+    display: flex; align-items: center; justify-content: center; font-size: 1.6rem;
+  }
+  .v10 .demo-word { font-family: ui-monospace, monospace; font-weight: 700; font-size: 1.1rem; }
+  .v10 .demo-sub { font-family: ui-monospace, monospace; font-size: 0.72rem; color: #5A6572; letter-spacing: 0.06em; }
+  .v10 .demo-barcode {
+    height: 22px; margin: 0 1.4rem 1.2rem;
+    background: repeating-linear-gradient(90deg, #1C232B 0 2px, transparent 2px 5px);
+  }
+
+  /* ---------- 11 Bande dessinee ---------- */
+  .v11 {
+    background: #FFE86B repeating-radial-gradient(rgba(0,0,0,0.05) 0 1px, transparent 1px 6px);
+    color: #1A1A1A; border: 4px solid #1A1A1A; padding: 1.6rem;
+  }
+  .v11 .demo-bubble {
+    background: #fff; border: 3px solid #1A1A1A; border-radius: 16px; padding: 1rem; position: relative; margin-top: 0.6rem;
+  }
+  .v11 .demo-bubble::after {
+    content: ""; position: absolute; bottom: -14px; left: 24px; width: 0; height: 0;
+    border: 12px solid transparent; border-top-color: #1A1A1A; border-bottom: 0;
+  }
+  .v11 .demo-emoji { font-size: 2rem; }
+  .v11 .demo-word {
+    font-family: 'Comic Sans MS', 'Segoe Print', cursive; font-weight: 700; font-size: 1.5rem;
+    -webkit-text-stroke: 1px #1A1A1A; margin: 0.4rem 0;
+  }
+  .v11 .demo-sub { font-family: 'Comic Sans MS', 'Segoe Print', cursive; font-size: 0.85rem; }
+
+  /* ---------- 12 Meteo ---------- */
+  .v12 {
+    background: linear-gradient(180deg, #52607A, #2C3547); color: #fff; padding: 1.8rem; text-align: center;
+  }
+  .v12 .demo-emoji { font-size: 3.6rem; }
+  .v12 .demo-word { font-weight: 700; font-size: 1.35rem; margin: 0.7rem 0 0.3rem; }
+  .v12 .demo-sub { font-size: 0.85rem; color: #C7D0DE; }
+  .v12 .demo-tag { font-size: 0.68rem; letter-spacing: 0.14em; text-transform: uppercase; color: #9FB0C8; }
+
+  /* ---------- 13 Carte de visite ---------- */
+  .v13 {
+    background: #1B1B1B; color: #E9CE84; padding: 2.2rem 1.8rem; justify-content: center; min-height: 220px;
+    border-top: 2px solid #E9CE84; border-bottom: 2px solid #E9CE84;
+  }
+  .v13 .demo-mono { font-family: Georgia, serif; font-size: 2.6rem; text-align: center; line-height: 1; }
+  .v13 .demo-word {
+    font-family: -apple-system, sans-serif; font-size: 0.95rem; letter-spacing: 0.32em; text-transform: uppercase;
+    text-align: center; margin: 0.9rem 0 0.4rem; color: #FBF7EC;
+  }
+  .v13 .demo-sub { font-size: 0.72rem; text-align: center; letter-spacing: 0.1em; color: #B79A4E; text-transform: uppercase; }
+
+  /* ---------- 14 Post-its empiles ---------- */
+  .v14 { background: none; padding: 0; min-height: 280px; }
+  .v14 .stack-a, .v14 .stack-b, .v14 .stack-c {
+    position: absolute; inset: 0; border-radius: 2px; box-shadow: 4px 6px 14px -6px rgba(0,0,0,0.4);
+  }
+  .v14 .stack-c { background: #BFF0C8; transform: rotate(6deg); }
+  .v14 .stack-b { background: #FFD3E0; transform: rotate(-5deg); }
+  .v14 .stack-a { background: #FFF3A3; transform: rotate(1deg); padding: 1.6rem; color: #4A431A; display: flex; flex-direction: column; }
+  .v14 .demo-emoji { font-size: 2rem; }
+  .v14 .demo-word { font-family: 'Segoe Print', cursive; font-size: 1.5rem; margin: 0.5rem 0; }
+  .v14 .demo-sub { font-family: 'Segoe Print', cursive; font-size: 0.92rem; }
+
+  /* ---------- 15 Fiche catalogue ---------- */
+  .v15 {
+    background: #EFE9D8; color: #2B2B2B; padding: 1.8rem 1.6rem 1.5rem;
+    clip-path: polygon(0 0, 32% 0, 38% 8%, 100% 8%, 100% 100%, 0 100%);
+  }
+  .v15 .demo-stamp {
+    position: absolute; top: 1.6rem; right: 1.4rem; border: 2px solid #B23A3E; color: #B23A3E;
+    font: 700 0.62rem/1 ui-monospace, monospace; padding: 0.3rem 0.5rem; transform: rotate(-8deg); border-radius: 3px;
+  }
+  .v15 .demo-emoji { font-family: ui-monospace, monospace; font-size: 1.6rem; margin-top: 0.6rem; }
+  .v15 .demo-word { font-family: 'Courier New', monospace; font-weight: 700; font-size: 1.35rem; margin: 0.6rem 0; }
+  .v15 .demo-sub { font-family: 'Courier New', monospace; font-size: 0.78rem; border-top: 1px dashed #9A9483; padding-top: 0.6rem; }
+
+  /* ---------- 16 Vinyle ---------- */
+  .v16 {
+    width: 260px; height: 260px; border-radius: 50%; margin: 0 auto; align-self: center;
+    background:
+      repeating-radial-gradient(circle at 50% 50%, #1a1a1a 0 3px, #232323 3px 6px);
+    display: flex; align-items: center; justify-content: center; min-height: unset;
+    box-shadow: 0 20px 40px -18px rgba(0,0,0,0.7);
+  }
+  .v16 .demo-label {
+    width: 118px; height: 118px; border-radius: 50%; background: #E0A34E; color: #3B2A0E;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 0.5rem;
+    position: relative;
+  }
+  .v16 .demo-label::after { content: ""; width: 10px; height: 10px; border-radius: 50%; background: #171818; position: absolute; }
+  .v16 .demo-emoji { font-size: 1.5rem; }
+  .v16 .demo-word { font-family: Georgia, serif; font-weight: 700; font-size: 0.72rem; margin-top: 0.2rem; }
+
+  /* ---------- 17 Ticket de caisse ---------- */
+  .v17 {
+    background: #fff; color: #1C1C1C; padding: 1.6rem 1.5rem 1.9rem; max-width: 260px; margin: 0 auto;
+    clip-path: polygon(0 0,100% 0,100% 96%,92% 100%,84% 96%,76% 100%,68% 96%,60% 100%,52% 96%,44% 100%,36% 96%,28% 100%,20% 96%,12% 100%,4% 96%,0 100%);
+  }
+  .v17 .demo-word { font-family: ui-monospace, monospace; font-weight: 700; font-size: 1.05rem; text-align: center; margin-bottom: 0.9rem; }
+  .v17 .demo-line { display: flex; justify-content: space-between; font-family: ui-monospace, monospace; font-size: 0.72rem; border-bottom: 1px dotted #999; padding: 0.35rem 0; }
+  .v17 .demo-total { font-family: ui-monospace, monospace; font-size: 0.78rem; font-weight: 700; margin-top: 0.7rem; text-align: right; }
+
+  /* ---------- 18 Certificat ---------- */
+  .v18 {
+    background: #FBF4E4; color: #4A3B22; padding: 2.2rem 1.6rem; text-align: center; border: 3px double #B8860B;
+  }
+  .v18 .demo-word { font-family: Georgia, serif; font-size: 1.5rem; font-weight: 700; margin: 0.6rem 0; }
+  .v18 .demo-sub { font-family: Georgia, serif; font-style: italic; font-size: 0.82rem; color: #6E5B36; }
+  .v18 .demo-seal {
+    width: 3rem; height: 3rem; border-radius: 50%; background: #B8860B; color: #FBF4E4; margin: 1rem auto 0;
+    display: flex; align-items: center; justify-content: center; font-size: 1.4rem;
+  }
+
+  /* ---------- 19 Story ---------- */
+  .v19 {
+    max-width: 210px; margin: 0 auto; min-height: 380px; border-radius: 20px; overflow: hidden;
+    background: linear-gradient(200deg, #FF6EA0, #7B4FA0 55%, #2662A8); padding: 1rem; display: flex; flex-direction: column;
+  }
+  .v19 .demo-bars { display: flex; gap: 4px; margin-bottom: 1rem; }
+  .v19 .demo-bars span { height: 3px; flex: 1; background: rgba(255,255,255,0.35); border-radius: 2px; }
+  .v19 .demo-bars span:first-child { background: #fff; }
+  .v19 .demo-emoji { font-size: 2.4rem; margin-top: auto; }
+  .v19 .demo-chip {
+    background: rgba(255,255,255,0.18); backdrop-filter: blur(6px); border-radius: 12px; padding: 0.8rem 0.9rem; margin-top: 0.8rem;
+  }
+  .v19 .demo-word { font-weight: 700; font-size: 1.1rem; color: #fff; }
+  .v19 .demo-sub { font-size: 0.78rem; color: rgba(255,255,255,0.85); margin-top: 0.2rem; }
+
+  /* ---------- 20 Carte a jouer ---------- */
+  .v20 {
+    background: #FBFAF4; color: #1C1C1C; border: 1px solid #ccc; border-radius: 12px; padding: 0.9rem; max-width: 230px; margin: 0 auto; min-height: 340px;
+  }
+  .v20 .demo-corner { font-family: Georgia, serif; font-weight: 700; font-size: 0.95rem; line-height: 1; }
+  .v20 .demo-corner span { display: block; font-size: 1.1rem; }
+  .v20 .demo-corner.br { transform: rotate(180deg); position: absolute; bottom: 0.9rem; right: 0.9rem; }
+  .v20 .demo-center { display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; text-align: center; }
+  .v20 .demo-emoji { font-size: 2.8rem; }
+  .v20 .demo-word { font-family: Georgia, serif; font-weight: 700; font-size: 1.05rem; margin-top: 0.6rem; }
+  .v20 .demo-sub { font-family: Georgia, serif; font-style: italic; font-size: 0.78rem; color: #555; margin-top: 0.3rem; }
+
+  footer { margin-top: 4rem; max-width: 70ch; color: #7C828A; font-size: 0.85rem; line-height: 1.6; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <p class="eyebrow">Planche d’essai &mdash; 20 pistes</p>
+    <h1>Quelle carte veux-tu vraiment retourner ?</h1>
+    <p>Chaque vignette est un système complet et différent &mdash; forme, matière, typographie &mdash; pas juste une recoloration. Dis-moi les numéros qui te parlent, je les affine et je les branche sur le carnet.</p>
+    <p>Cette planche assume un fond sombre unique, pensé comme un mur d’atelier : chaque carte garde sa propre palette fixe.</p>
+  </header>
+
+  <div class="gallery">
+
+    <figure class="tile">
+      <div class="demo v1">
+        <span class="demo-tag">Verbe</span>
+        <span class="demo-emoji">💪</span>
+        <p class="demo-word">s’évertuer</p>
+        <p class="demo-sub">« elle s’évertue à réparer cette horloge »</p>
+      </div>
+      <figcaption><b>01 — Cahier d’écolier</b><span>grille Seyès, filet rouge en marge, encre marine</span></figcaption>
+    </figure>
+
+    <figure class="tile">
+      <div class="demo v2">
+        <span class="demo-tag">DÉPART IMMÉDIAT</span>
+        <span class="demo-emoji">🏃</span>
+        <p class="demo-word">déguerpir</p>
+        <p class="demo-sub">durée : quelques secondes &middot; sans bagage</p>
+      </div>
+      <figcaption><b>02 — Ticket de transport</b><span>encoches perforées, ligne pointillée, monospace</span></figcaption>
+    </figure>
+
+    <figure class="tile">
+      <div class="demo v3">
+        <span class="demo-emoji">💭</span>
+        <p class="demo-word">velléité</p>
+        <p class="demo-sub">une intention... qui ne suivra sans doute pas</p>
+      </div>
+      <figcaption><b>03 — Post-it scotché</b><span>papier penché, écriture manuscrite, petit ruban adhésif</span></figcaption>
+    </figure>
+
+    <figure class="tile">
+      <div class="demo v4">
+        <div class="demo-photo">🤩</div>
+        <p class="demo-word">extatique</p>
+        <p class="demo-sub">ravi. transporté. hors de soi.</p>
+      </div>
+      <figcaption><b>04 — Polaroid</b><span>cadre photo, légende manuscrite, léger angle</span></figcaption>
+    </figure>
+
+    <figure class="tile">
+      <div class="demo v5">
+        <span class="demo-tag">PRÉNOM</span>
+        <span class="demo-emoji">🏷️</span>
+        <p class="demo-word">Kevin</p>
+        <p class="demo-sub">sous surveillance sociale — voir B. Coulmont</p>
+      </div>
+      <figcaption><b>05 — Étiquette bagage</b><span>kraft, coin coupé, trou perforé — anecdote</span></figcaption>
+    </figure>
+
+    <figure class="tile">
+      <div class="demo v6">
+        <span class="demo-emoji">🐎</span>
+        <p class="demo-word">les 4 cavaliers de l’apocalypse</p>
+        <p class="demo-sub">conquête &middot; guerre &middot; famine &middot; mort</p>
+      </div>
+      <figcaption><b>06 — Néon d’arcade</b><span>fond noir, double lueur magenta/cyan, display en dégradé</span></figcaption>
+    </figure>
+
+    <figure class="tile">
+      <div class="demo v7">
+        <span class="demo-emoji">🐦</span>
+        <p class="demo-word">tête de linotte</p>
+        <p class="demo-sub">Fig. 12 — spécimen étourdi et distrait</p>
+      </div>
+      <figcaption><b>07 — Planche naturaliste</b><span>cadre fin double-trait, légende en petites capitales</span></figcaption>
+    </figure>
+
+    <figure class="tile">
+      <div class="demo v8">
+        <span class="demo-emoji">🗣️</span>
+        <p class="demo-word">j’ai coutume de dire</p>
+        <p class="demo-sub">une maxime, servie souvent et volontiers</p>
+      </div>
+      <figcaption><b>08 — Fiche recette</b><span>bandeau titre en haut, papier chaud, serif rond</span></figcaption>
+    </figure>
+
+    <figure class="tile">
+      <div class="demo v9">
+        <span class="demo-num">XI</span>
+        <span class="demo-emoji">🛡️</span>
+        <p class="demo-word">sous l’égide de</p>
+        <p class="demo-sub">sous la protection de&hellip;</p>
+      </div>
+      <figcaption><b>09 — Carte de tarot</b><span>indigo, cadre doré double, petites capitales</span></figcaption>
+    </figure>
+
+    <figure class="tile">
+      <div class="demo v10">
+        <div class="demo-strip"></div>
+        <div class="demo-body">
+          <div class="demo-avatar">🐾</div>
+          <div>
+            <p class="demo-word">montrer patte blanche</p>
+            <p class="demo-sub">ACCÈS — badge &amp; pièce d’identité requis</p>
+          </div>
+        </div>
+        <div class="demo-barcode"></div>
+      </div>
+      <figcaption><b>10 — Laissez-passer</b><span>badge d’accès, bandeau couleur, code-barres</span></figcaption>
+    </figure>
+
+    <figure class="tile">
+      <div class="demo v11">
+        <span class="demo-emoji">😏</span>
+        <p class="demo-word">facétieux</p>
+        <div class="demo-bubble">
+          <p class="demo-sub">hop, une blague glissée dans le rapport !</p>
+        </div>
+      </div>
+      <figcaption><b>11 — Bande dessinée</b><span>contour épais, trame de points, bulle de dialogue</span></figcaption>
+    </figure>
+
+    <figure class="tile">
+      <div class="demo v12">
+        <span class="demo-tag">Prévision du jour</span>
+        <span class="demo-emoji">⛈️</span>
+        <p class="demo-word">cathartique</p>
+        <p class="demo-sub">orage, puis grand soulagement</p>
+      </div>
+      <figcaption><b>12 — Carte météo</b><span>dégradé de ciel, icône géante, sobriété d’app</span></figcaption>
+    </figure>
+
+    <figure class="tile">
+      <div class="demo v13">
+        <div class="demo-mono">C</div>
+        <p class="demo-word">cossu</p>
+        <p class="demo-sub">riche &middot; opulent &middot; haussmannien</p>
+      </div>
+      <figcaption><b>13 — Carte de visite</b><span>noir &amp; or, monogramme, minimalisme tracé large</span></figcaption>
+    </figure>
+
+    <figure class="tile">
+      <div class="demo v14">
+        <div class="stack-c"></div>
+        <div class="stack-b"></div>
+        <div class="stack-a">
+          <span class="demo-emoji">🔥</span>
+          <p class="demo-word">émulation</p>
+          <p class="demo-sub">la compétition qui pousse à se dépasser</p>
+        </div>
+      </div>
+      <figcaption><b>14 — Post-its empilés</b><span>trois notes superposées, couleurs vives, esprit d’équipe</span></figcaption>
+    </figure>
+
+    <figure class="tile">
+      <div class="demo v15">
+        <span class="demo-stamp">VU LE 26/07</span>
+        <span class="demo-emoji">♾️</span>
+        <p class="demo-word">incommensurable</p>
+        <p class="demo-sub">COTE : hors mesure — classement impossible</p>
+      </div>
+      <figcaption><b>15 — Fiche de catalogue</b><span>onglet découpé, machine à écrire, tampon de date</span></figcaption>
+    </figure>
+
+    <figure class="tile">
+      <div class="demo v16">
+        <div class="demo-label">
+          <span class="demo-emoji">🌫️</span>
+          <p class="demo-word">illusoire</p>
+        </div>
+      </div>
+      <figcaption><b>16 — Vinyle 33 tours</b><span>sillons concentriques, label rond central</span></figcaption>
+    </figure>
+
+    <figure class="tile">
+      <div class="demo v17">
+        <p class="demo-word">DANS LA MESURE OÙ</p>
+        <div class="demo-line"><span>DÉFINITION</span><span>1</span></div>
+        <div class="demo-line"><span>EXEMPLE</span><span>1</span></div>
+        <div class="demo-line"><span>SYNONYMES</span><span>4</span></div>
+        <p class="demo-total">TOTAL À RETENIR : 1</p>
+      </div>
+      <figcaption><b>17 — Ticket de caisse</b><span>bord dentelé, lignes pointillées, tout en majuscules</span></figcaption>
+    </figure>
+
+    <figure class="tile">
+      <div class="demo v18">
+        <span class="demo-tag">Décerné pour usage exemplaire</span>
+        <p class="demo-word">inexorable</p>
+        <p class="demo-sub">caractère jugé irréversible</p>
+        <div class="demo-seal">🌊</div>
+      </div>
+      <figcaption><b>18 — Certificat</b><span>cadre double filet doré, sceau rond, ton solennel</span></figcaption>
+    </figure>
+
+    <figure class="tile">
+      <div class="demo v19">
+        <div class="demo-bars"><span></span><span></span><span></span></div>
+        <span class="demo-emoji">🪧</span>
+        <div class="demo-chip">
+          <p class="demo-word">à telle enseigne que</p>
+          <p class="demo-sub">à tel point que&hellip;</p>
+        </div>
+      </div>
+      <figcaption><b>19 — Story mobile</b><span>format vertical, dégradé vif, chip translucide</span></figcaption>
+    </figure>
+
+    <figure class="tile">
+      <div class="demo v20">
+        <div class="demo-corner">IN<span>♟️</span></div>
+        <div class="demo-center">
+          <span class="demo-emoji">♟️</span>
+          <p class="demo-word">inéluctable</p>
+          <p class="demo-sub">dont l’issue est certaine</p>
+        </div>
+        <div class="demo-corner br">IN<span>♟️</span></div>
+      </div>
+      <figcaption><b>20 — Carte à jouer</b><span>index en coin, symbole central, ratio poker</span></figcaption>
+    </figure>
+
+  </div>
+
+  <footer>Aucune de ces vignettes n’est branchée à une logique de retournement — c’est un nuancier de styles, pas encore l’appli. Une fois ton choix fait (ou ton mix de 2&ndash;3 favoris), je le recrée en carte flip complète avec définition/exemple/synonymes au verso, dans le carnet existant.</footer>
+</div>
+</body>
+</html>
