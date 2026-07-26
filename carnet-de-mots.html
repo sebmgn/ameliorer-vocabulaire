@@ -23,6 +23,8 @@
     --cat-adjectif: #7B4FA0;
     --cat-nom: #C97A2B;
     --cat-adverbe: #1E7A8C;
+    --tag-todo: #B8860B;
+    --tag-done: #3F9142;
   }
 
   * { box-sizing: border-box; }
@@ -110,12 +112,18 @@
   }
   .progress-track {
     height: 6px; background: var(--card-border); border-radius: 3px; overflow: hidden;
+    display: flex;
   }
-  .progress-fill {
-    height: 100%; width: 0%;
-    background: linear-gradient(90deg, var(--cat-verbe), var(--accent-strong));
-    transition: width 0.4s ease;
+  .progress-fill { height: 100%; width: 0%; transition: width 0.4s ease; }
+  .progress-fill.done { background: var(--tag-done); }
+  .progress-fill.todo { background: var(--tag-todo); }
+  .progress-legend {
+    display: flex; gap: 0.9rem; font-size: 0.72rem; color: var(--ink-faint);
   }
+  .progress-legend span { display: inline-flex; align-items: center; gap: 0.3rem; }
+  .progress-legend .dot { width: 0.5rem; height: 0.5rem; border-radius: 50%; display: inline-block; }
+  .progress-legend .dot.done { background: var(--tag-done); }
+  .progress-legend .dot.todo { background: var(--tag-todo); }
 
   .filters { display: flex; gap: 0.6rem; flex-wrap: wrap; }
   .filter-btn {
@@ -200,11 +208,18 @@
     color: var(--cat-color); background: color-mix(in srgb, var(--cat-color) 16%, transparent);
     padding: 0.3rem 0.75rem; border-radius: 999px;
   }
-  .star-btn {
-    background: none; border: none; cursor: pointer; font-size: 1.4rem; color: var(--ink-faint);
-    line-height: 1; padding: 0;
+  .tag-buttons { display: flex; gap: 0.4rem; }
+  .tag-btn {
+    background: none; border: 1px solid var(--card-border); cursor: pointer;
+    font-size: 0.72rem; font-weight: 600; letter-spacing: 0.03em; color: var(--ink-faint);
+    line-height: 1; padding: 0.35rem 0.6rem; border-radius: 999px; display: inline-flex;
+    align-items: center; gap: 0.3rem;
+    font-family: -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    transition: all 0.15s ease;
   }
-  .star-btn.on { color: var(--accent-strong); }
+  .tag-btn:hover { border-color: var(--ink-faint); color: var(--ink); }
+  .tag-btn.todo.on { background: color-mix(in srgb, var(--tag-todo) 16%, transparent); border-color: var(--tag-todo); color: var(--tag-todo); }
+  .tag-btn.done.on { background: color-mix(in srgb, var(--tag-done) 16%, transparent); border-color: var(--tag-done); color: var(--tag-done); }
 
   .emoji-badge {
     width: 5.5rem; height: 5.5rem; border-radius: 50%;
@@ -284,7 +299,8 @@
   .index-tile:hover { border-color: var(--accent-strong); color: var(--ink); }
   .index-tile .idx-emoji { font-size: 1.05rem; }
   .index-tile .idx-num { font-variant-numeric: tabular-nums; color: var(--ink-faint); font-size: 0.72rem; }
-  .index-tile.learned .idx-num::after { content: " \2713"; color: var(--accent-strong); }
+  .index-tile.tag-appris .idx-num::after { content: " \2713"; color: var(--tag-done); }
+  .index-tile.tag-a_apprendre .idx-num::after { content: " \1F516"; }
   .index-tile .idx-word { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
   footer.note {
@@ -310,6 +326,20 @@
   .add-view { margin-left: 3rem; max-width: 640px; }
   @media (max-width: 640px) { .add-view { margin-left: 1.5rem; } }
   .add-view p.intro { color: var(--ink-soft); font-style: italic; margin: 0 0 1.75rem; max-width: 60ch; }
+
+  .list-view { margin-left: 3rem; }
+  @media (max-width: 640px) { .list-view { margin-left: 1.5rem; } }
+  .list-view p.intro { color: var(--ink-soft); font-style: italic; margin: 0 0 1.5rem; max-width: 60ch; }
+  .list-view .filters { margin-bottom: 1.5rem; }
+  .list-view .index-grid { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
+  .list-view .index-tile { padding: 0.7rem 0.85rem; }
+  .list-view .idx-actions { display: flex; gap: 0.3rem; flex: none; }
+  .list-view .idx-actions button {
+    background: none; border: 1px solid var(--card-border); border-radius: 999px; cursor: pointer;
+    font-size: 0.68rem; padding: 0.2rem 0.4rem; color: var(--ink-faint);
+  }
+  .list-view .idx-actions button.todo.on { border-color: var(--tag-todo); color: var(--tag-todo); }
+  .list-view .idx-actions button.done.on { border-color: var(--tag-done); color: var(--tag-done); }
 
   .quick-add {
     background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 10px;
@@ -423,14 +453,22 @@
 
   <nav class="view-toggle" id="view-toggle">
     <button type="button" data-view="carnet" class="active">Carnet</button>
+    <button type="button" data-view="list">Ma liste</button>
     <button type="button" data-view="add">Ajouter un mot</button>
   </nav>
 
   <section id="view-carnet">
   <div class="toolbar">
     <div class="progress-block">
-      <div class="progress-label"><span id="progress-text">0 / 21 retenus</span></div>
-      <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+      <div class="progress-label"><span id="progress-text">0 / 21 tagu&eacute;s</span></div>
+      <div class="progress-track">
+        <div class="progress-fill done" id="progress-fill-done"></div>
+        <div class="progress-fill todo" id="progress-fill-todo"></div>
+      </div>
+      <div class="progress-legend">
+        <span><i class="dot done"></i>Appris</span>
+        <span><i class="dot todo"></i>&Agrave; apprendre</span>
+      </div>
     </div>
     <div class="filters" id="filters"></div>
     <div class="search-wrap">
@@ -447,7 +485,10 @@
           <div class="face front">
             <div class="face-top">
               <span class="tag-type" id="face-type">Adjectif</span>
-              <button class="star-btn" id="star-btn" aria-label="Marquer comme sue">&#9734;</button>
+              <div class="tag-buttons">
+                <button class="tag-btn todo" id="tag-todo-btn">&#128278; &Agrave; apprendre</button>
+                <button class="tag-btn done" id="tag-done-btn">&#10003; Appris</button>
+              </div>
             </div>
             <div class="emoji-badge" id="face-emoji">&#10024;</div>
             <p class="word" id="face-word">mot</p>
@@ -482,6 +523,12 @@
   </details>
 
   <footer class="note" id="footer-note"></footer>
+  </section>
+
+  <section id="view-list" class="list-view" hidden>
+    <p class="intro">Les mots que tu as marqu&eacute;s &laquo;&nbsp;&agrave; apprendre&nbsp;&raquo; ou &laquo;&nbsp;appris&nbsp;&raquo;, pour t&rsquo;y retrouver d&rsquo;un coup d&rsquo;&oelig;il.</p>
+    <div class="filters" id="list-filters"></div>
+    <div class="index-grid" id="list-grid"></div>
   </section>
 
   <section id="view-add" class="add-view" hidden>
@@ -1507,12 +1554,32 @@
     return exampleHtml.slice(0, idx) + "<strong>" + exampleHtml.slice(idx, idx + motHtml.length) + "</strong>" + exampleHtml.slice(idx + motHtml.length);
   }
 
-  var LEARNED_KEY = "carnet-de-mots-appris";
-  var learned = new Set();
+  // Chaque mot peut porter un statut : "a_apprendre" ou "appris" (ou aucun).
+  // L’ancien système (une simple étoile "appris") est migré une fois vers le
+  // nouveau, pour ne pas perdre la progression déjà enregistrée.
+  var TAGS_KEY = "carnet-de-mots-tags";
+  var LEGACY_LEARNED_KEY = "carnet-de-mots-appris";
+  var tags = {};
   try {
-    var saved = JSON.parse(localStorage.getItem(LEARNED_KEY) || "[]");
-    saved.forEach(function (id) { learned.add(id); });
+    tags = JSON.parse(localStorage.getItem(TAGS_KEY) || "{}");
+  } catch (e) { tags = {}; }
+  try {
+    var legacy = JSON.parse(localStorage.getItem(LEGACY_LEARNED_KEY) || "[]");
+    if (legacy.length && localStorage.getItem(TAGS_KEY) === null) {
+      legacy.forEach(function (id) { tags[id] = "appris"; });
+      localStorage.setItem(TAGS_KEY, JSON.stringify(tags));
+    }
   } catch (e) { /* ignore corrupt storage */ }
+
+  function getTag(id) { return tags[id] || null; }
+  function persistTags() { localStorage.setItem(TAGS_KEY, JSON.stringify(tags)); }
+  function setTag(id, value) {
+    if (tags[id] === value) delete tags[id]; else tags[id] = value;
+    persistTags();
+  }
+  function countTag(value) {
+    return Object.keys(tags).filter(function (id) { return tags[id] === value; }).length;
+  }
 
   var order = ENTRIES.map(function (e) { return e.id; });
 
@@ -1529,10 +1596,6 @@
   var query = "";
   var pos = 0;
   var currentView = "carnet";
-
-  function persist() {
-    localStorage.setItem(LEARNED_KEY, JSON.stringify(Array.from(learned)));
-  }
 
   function matchesFilter(entry) {
     var groupOk = activeGroup === "tous" || entry.group === activeGroup;
@@ -1558,11 +1621,13 @@
   var defEl = document.getElementById("face-def");
   var exEl = document.getElementById("face-example");
   var synEl = document.getElementById("face-synonyms");
-  var starBtn = document.getElementById("star-btn");
+  var tagTodoBtn = document.getElementById("tag-todo-btn");
+  var tagDoneBtn = document.getElementById("tag-done-btn");
   var prevBtn = document.getElementById("prev-btn");
   var nextBtn = document.getElementById("next-btn");
   var progressText = document.getElementById("progress-text");
-  var progressFill = document.getElementById("progress-fill");
+  var progressFillDone = document.getElementById("progress-fill-done");
+  var progressFillTodo = document.getElementById("progress-fill-todo");
   var filtersEl = document.getElementById("filters");
   var searchInput = document.getElementById("search");
   var indexGrid = document.getElementById("index-grid");
@@ -1587,9 +1652,11 @@
 
   function updateProgress() {
     var total = ENTRIES.length;
-    var count = learned.size;
-    progressText.textContent = count + " / " + total + " retenus";
-    progressFill.style.width = (total ? (count / total * 100) : 0) + "%";
+    var done = countTag("appris");
+    var todo = countTag("a_apprendre");
+    progressText.textContent = (done + todo) + " / " + total + " tagués";
+    progressFillDone.style.width = (total ? (done / total * 100) : 0) + "%";
+    progressFillTodo.style.width = (total ? (todo / total * 100) : 0) + "%";
     var totalCountEl = document.getElementById("total-count");
     var sommaireCountEl = document.getElementById("sommaire-count");
     if (totalCountEl) totalCountEl.textContent = total;
@@ -1600,7 +1667,8 @@
     indexGrid.innerHTML = "";
     ENTRIES.forEach(function (entry, i) {
       var tile = document.createElement("button");
-      tile.className = "index-tile" + (learned.has(entry.id) ? " learned" : "");
+      var tagVal = getTag(entry.id);
+      tile.className = "index-tile" + (tagVal ? " tag-" + tagVal : "");
       tile.innerHTML = '<span class="idx-emoji">' + entry.emoji + '</span>' +
                         '<span class="idx-num">' + String(i + 1).padStart(2, "0") + '</span>' +
                         '<span class="idx-word">' + entry.mot + '</span>';
@@ -1642,7 +1710,10 @@
             '<div class="face front">' +
               '<div class="face-top">' +
                 '<span class="tag-type" id="face-type"></span>' +
-                '<button class="star-btn" id="star-btn" aria-label="Marquer comme sue">&#9734;</button>' +
+                '<div class="tag-buttons">' +
+                  '<button class="tag-btn todo" id="tag-todo-btn">🔖 À apprendre</button>' +
+                  '<button class="tag-btn done" id="tag-done-btn">✓ Appris</button>' +
+                '</div>' +
               '</div>' +
               '<div class="emoji-badge" id="face-emoji"></div>' +
               '<p class="word" id="face-word"></p>' +
@@ -1674,14 +1745,23 @@
     defEl.innerHTML = entry.def ? entry.def : "<em>Définition à compléter&hellip;</em>";
     exEl.innerHTML = entry.ex ? ("« " + entry.ex + " »") : "<em>Exemple à ajouter&hellip;</em>";
     synEl.textContent = entry.syn || "—";
-    starBtn.innerHTML = learned.has(entry.id) ? "&#9733;" : "&#9734;";
-    starBtn.classList.toggle("on", learned.has(entry.id));
-    starBtn.onclick = function (ev) {
+    function refreshTagBtns() {
+      var t = getTag(entry.id);
+      tagTodoBtn.classList.toggle("on", t === "a_apprendre");
+      tagDoneBtn.classList.toggle("on", t === "appris");
+    }
+    refreshTagBtns();
+    tagTodoBtn.onclick = function (ev) {
       ev.stopPropagation();
-      if (learned.has(entry.id)) learned.delete(entry.id); else learned.add(entry.id);
-      persist();
-      starBtn.innerHTML = learned.has(entry.id) ? "&#9733;" : "&#9734;";
-      starBtn.classList.toggle("on", learned.has(entry.id));
+      setTag(entry.id, "a_apprendre");
+      refreshTagBtns();
+      updateProgress();
+      buildIndex();
+    };
+    tagDoneBtn.onclick = function (ev) {
+      ev.stopPropagation();
+      setTag(entry.id, "appris");
+      refreshTagBtns();
       updateProgress();
       buildIndex();
     };
@@ -1704,7 +1784,8 @@
     defEl = document.getElementById("face-def");
     exEl = document.getElementById("face-example");
     synEl = document.getElementById("face-synonyms");
-    starBtn = document.getElementById("star-btn");
+    tagTodoBtn = document.getElementById("tag-todo-btn");
+    tagDoneBtn = document.getElementById("tag-done-btn");
     flashcardEl.addEventListener("click", toggleFlip);
     flashcardEl.addEventListener("keydown", function (e) {
       if (e.key === " " || e.key === "Enter") { e.preventDefault(); toggleFlip(); }
@@ -1767,6 +1848,7 @@
 
   var viewToggleEl = document.getElementById("view-toggle");
   var viewCarnetEl = document.getElementById("view-carnet");
+  var viewListEl = document.getElementById("view-list");
   var viewAddEl = document.getElementById("view-add");
 
   viewToggleEl.addEventListener("click", function (e) {
@@ -1777,8 +1859,10 @@
       b.classList.toggle("active", b === btn);
     });
     viewCarnetEl.hidden = currentView !== "carnet";
+    viewListEl.hidden = currentView !== "list";
     viewAddEl.hidden = currentView !== "add";
     if (currentView === "add") renderMyWords();
+    if (currentView === "list") buildListView();
   });
 
   var addForm = document.getElementById("add-form");
@@ -1885,6 +1969,96 @@
       row.appendChild(editBtn);
       row.appendChild(delBtn);
       myWordsList.appendChild(row);
+    });
+  }
+
+  var listFiltersEl = document.getElementById("list-filters");
+  var listGridEl = document.getElementById("list-grid");
+  var listActiveTag = "a_apprendre";
+  var LIST_TAG_LABELS = { a_apprendre: "À apprendre", appris: "Appris", tous: "Tous les tagués" };
+
+  function buildListFilters() {
+    listFiltersEl.innerHTML = "";
+    ["a_apprendre", "appris", "tous"].forEach(function (t) {
+      var count = t === "tous" ? Object.keys(tags).length : countTag(t);
+      var btn = document.createElement("button");
+      btn.className = "filter-btn" + (t === listActiveTag ? " active" : "");
+      btn.textContent = LIST_TAG_LABELS[t] + " (" + count + ")";
+      btn.addEventListener("click", function () {
+        listActiveTag = t;
+        buildListView();
+      });
+      listFiltersEl.appendChild(btn);
+    });
+  }
+
+  function goToEntryInCarnet(entry) {
+    activeGroup = "tous"; query = ""; searchInput.value = "";
+    buildFilters();
+    var list = currentList();
+    var idx = list.indexOf(entry);
+    pos = idx === -1 ? 0 : idx;
+    currentView = "carnet";
+    viewCarnetEl.hidden = false; viewListEl.hidden = true; viewAddEl.hidden = true;
+    Array.prototype.forEach.call(viewToggleEl.querySelectorAll("button"), function (b) {
+      b.classList.toggle("active", b.getAttribute("data-view") === "carnet");
+    });
+    render();
+    flashcardEl.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+
+  function buildListView() {
+    buildListFilters();
+    listGridEl.innerHTML = "";
+    var matching = ENTRIES.filter(function (e) {
+      var t = getTag(e.id);
+      if (!t) return false;
+      return listActiveTag === "tous" || t === listActiveTag;
+    });
+    if (matching.length === 0) {
+      var emptyLabel = listActiveTag === "tous" ? "tagué" : "dans « " + LIST_TAG_LABELS[listActiveTag] + " »";
+      listGridEl.innerHTML = '<p class="no-words">Aucun mot ' + emptyLabel + ' pour l’instant &mdash; marque des mots depuis le Carnet.</p>';
+      return;
+    }
+    matching.forEach(function (entry) {
+      var t = getTag(entry.id);
+      var tile = document.createElement("div");
+      tile.className = "index-tile tag-" + t;
+      tile.setAttribute("tabindex", "0");
+      tile.setAttribute("role", "button");
+      tile.innerHTML =
+        '<span class="idx-emoji">' + entry.emoji + '</span>' +
+        '<span class="idx-word">' + entry.mot + '</span>';
+      var actions = document.createElement("div");
+      actions.className = "idx-actions";
+      var todoBtn = document.createElement("button");
+      todoBtn.className = "todo" + (t === "a_apprendre" ? " on" : "");
+      todoBtn.innerHTML = "🔖";
+      todoBtn.setAttribute("aria-label", "Marquer à apprendre");
+      todoBtn.addEventListener("click", function (ev) {
+        ev.stopPropagation();
+        setTag(entry.id, "a_apprendre");
+        updateProgress();
+        buildListView();
+      });
+      var doneBtn = document.createElement("button");
+      doneBtn.className = "done" + (t === "appris" ? " on" : "");
+      doneBtn.innerHTML = "✓";
+      doneBtn.setAttribute("aria-label", "Marquer appris");
+      doneBtn.addEventListener("click", function (ev) {
+        ev.stopPropagation();
+        setTag(entry.id, "appris");
+        updateProgress();
+        buildListView();
+      });
+      actions.appendChild(todoBtn);
+      actions.appendChild(doneBtn);
+      tile.appendChild(actions);
+      tile.addEventListener("click", function () { goToEntryInCarnet(entry); });
+      tile.addEventListener("keydown", function (e) {
+        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); goToEntryInCarnet(entry); }
+      });
+      listGridEl.appendChild(tile);
     });
   }
 
