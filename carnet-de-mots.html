@@ -23,38 +23,6 @@
     --cat-adjectif: #7B4FA0;
     --cat-nom: #C97A2B;
   }
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --paper: #12161D;
-      --paper-line: rgba(120,160,200,0.13);
-      --ink: #EAE5D8;
-      --ink-soft: #ACB2AC;
-      --ink-faint: #6B7480;
-      --card-bg: #181E26;
-      --card-border: #2C333D;
-      --card-shadow: rgba(0,0,0,0.55);
-      --rule-blue: #8FB3D6;
-      --accent: #E17A72;
-      --accent-strong: #C4433F;
-      --accent-ink: #FBF7EE;
-      --focus: #6FA8DC;
-      --cat-verbe: #4FA98E;
-      --cat-adjectif: #A688D6;
-      --cat-nom: #E0A34E;
-    }
-  }
-  :root[data-theme="dark"] {
-    --paper: #12161D; --paper-line: rgba(120,160,200,0.13); --ink: #EAE5D8; --ink-soft: #ACB2AC;
-    --ink-faint: #6B7480; --card-bg: #181E26; --card-border: #2C333D; --card-shadow: rgba(0,0,0,0.55);
-    --rule-blue: #8FB3D6; --accent: #E17A72; --accent-strong: #C4433F; --accent-ink: #FBF7EE; --focus: #6FA8DC;
-    --cat-verbe: #4FA98E; --cat-adjectif: #A688D6; --cat-nom: #E0A34E;
-  }
-  :root[data-theme="light"] {
-    --paper: #EEF0E7; --paper-line: rgba(70,100,130,0.14); --ink: #1E2A38; --ink-soft: #55636D;
-    --ink-faint: #93998F; --card-bg: #FBFAF4; --card-border: #D9D4BE; --card-shadow: rgba(30,40,50,0.20);
-    --rule-blue: #4E6E8E; --accent: #B23A3E; --accent-strong: #B23A3E; --accent-ink: #FBF7EE; --focus: #2662A8;
-    --cat-verbe: #2E7D6B; --cat-adjectif: #7B4FA0; --cat-nom: #C97A2B;
-  }
 
   * { box-sizing: border-box; }
   html, body { margin: 0; padding: 0; }
@@ -340,6 +308,32 @@
   .add-view { margin-left: 3rem; max-width: 640px; }
   @media (max-width: 640px) { .add-view { margin-left: 1.5rem; } }
   .add-view p.intro { color: var(--ink-soft); font-style: italic; margin: 0 0 1.75rem; max-width: 60ch; }
+
+  .quick-add {
+    background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 10px;
+    padding: 1.1rem 1.2rem; margin-bottom: 2rem; display: grid; gap: 0.7rem;
+    font-family: -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  }
+  .quick-add label {
+    font-size: 0.76rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--rule-blue); font-weight: 700;
+  }
+  .quick-add textarea {
+    width: 100%; background: var(--paper); border: 1px solid var(--card-border); border-radius: 8px;
+    padding: 0.6rem 0.75rem; color: var(--ink); font-size: 0.92rem; font-family: inherit; resize: vertical;
+  }
+  .quick-add textarea:focus { border-color: var(--focus); }
+  .quick-add-row { display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap; }
+  .quick-add-row select {
+    background: var(--paper); border: 1px solid var(--card-border); border-radius: 8px;
+    padding: 0.5rem 0.65rem; color: var(--ink); font-size: 0.88rem; font-family: inherit;
+  }
+  .quick-add .help { font-size: 0.76rem; color: var(--ink-faint); font-style: italic; }
+
+  .form-divider {
+    font-family: -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    font-size: 0.8rem; color: var(--ink-faint); margin: 0 0 1.1rem;
+  }
+  .form-actions { display: flex; align-items: center; gap: 1.2rem; }
   .add-form {
     display: grid; gap: 1.1rem; font-family: -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   }
@@ -491,6 +485,22 @@
   <section id="view-add" class="add-view" hidden>
     <p class="intro">Ajoute un mot ou une expression : il rejoint aussitôt ta liste et compte dans le filtre &laquo;&nbsp;Tous&nbsp;&raquo;.</p>
 
+    <div class="quick-add">
+      <label for="f-bulk">Ajout rapide &mdash; un mot ou une expression par ligne</label>
+      <textarea id="f-bulk" rows="4" placeholder="De fa&ccedil;on incr&eacute;mentale&#10;Retrousser nos manches&#10;Stakhanoviste&#10;Se recroqueviller&#10;Il est au four et au moulin"></textarea>
+      <div class="quick-add-row">
+        <select id="f-bulk-type">
+          <option value="expression">Expression / locution</option>
+          <option value="verbe">Verbe</option>
+          <option value="adjectif">Adjectif</option>
+          <option value="nom">Nom</option>
+          <option value="anecdote">Anecdote culturelle</option>
+        </select>
+        <button type="button" class="submit-btn" id="bulk-add-btn">Ajouter la liste</button>
+      </div>
+      <span class="help">Chaque ligne devient une fiche avec juste le mot (les puces &laquo;&nbsp;-&nbsp;&raquo;/&laquo;&nbsp;*&nbsp;&raquo; sont ignor&eacute;es). Compl&egrave;te ensuite la d&eacute;finition via &#9999;&#65039; dans &laquo;&nbsp;Mes ajouts&nbsp;&raquo;, ou demande-moi de le faire dans une conversation Claude.</span>
+    </div>
+
     <div class="sync-bar">
       <span class="sync-status" id="sync-status">&mdash;</span>
       <button type="button" class="sync-link" id="sync-refresh-btn">&#128260; Resynchro</button>
@@ -505,6 +515,7 @@
       <p class="sync-note">Cr&eacute;e un <em>fine-grained personal access token</em> sur github.com &rarr; Settings &rarr; Developer settings, limit&eacute; au repo <code>ameliorer-vocabulaire</code> (tu peux aussi cocher <code>Tracking-Whales</code> dans le m&ecirc;me token si tu veux un seul token pour les deux), permission <strong>Contents: Read and write</strong> uniquement. Ce site &eacute;tant s&eacute;par&eacute; de <code>positions.html</code>, colle ce token ici une fois par appareil/navigateur m&ecirc;me si c&rsquo;est la m&ecirc;me valeur que celui des snapshots. Il reste stock&eacute; localement, jamais envoy&eacute; ailleurs qu&rsquo;&agrave; l&rsquo;API GitHub.</p>
     </div>
 
+    <p class="form-divider">Ou d&eacute;taille une fiche compl&egrave;te :</p>
     <form class="add-form" id="add-form">
       <div class="field-row">
         <div class="field">
@@ -540,7 +551,10 @@
         <label for="f-syn">Synonymes</label>
         <input type="text" id="f-syn" placeholder="s&eacute;par&eacute;s par des virgules" />
       </div>
-      <button type="submit" class="submit-btn">Ajouter &agrave; mon carnet</button>
+      <div class="form-actions">
+        <button type="submit" class="submit-btn" id="add-submit-btn">Ajouter &agrave; mon carnet</button>
+        <button type="button" class="text-btn" id="edit-cancel-btn" hidden>Annuler la modification</button>
+      </div>
     </form>
 
     <div class="my-words">
@@ -707,6 +721,7 @@
   function applyWordOpToList(list, op) {
     if (op.type === "add") return list.concat([op.entry]);
     if (op.type === "delete") return list.filter(function (e) { return e.id !== op.id; });
+    if (op.type === "edit") return list.map(function (e) { return e.id === op.id ? Object.assign({}, e, op.patch) : e; });
     if (op.type === "seed") return op.list;
     return list;
   }
@@ -794,14 +809,21 @@
       wordsSyncInFlight = false;
     }
   }
-  function enqueueWordOp(op) {
-    customEntries = applyWordOpToList(customEntries, op);
+  function enqueueWordOps(ops) {
+    ops.forEach(function (op) { customEntries = applyWordOpToList(customEntries, op); });
     persistCustom();
     var q = loadWordsQueue();
-    q.push(op);
+    ops.forEach(function (op) { q.push(op); });
     saveWordsQueue(q);
     rebuildEntries(); syncOrderWithEntries(); buildFilters(); renderMyWords(); render();
     syncWordsNow();
+  }
+  function enqueueWordOp(op) { enqueueWordOps([op]); }
+  function unescapeHtml(s) {
+    return String(s || "").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+  }
+  function stripStrong(html) {
+    return String(html || "").replace(/<\/?strong>/g, "");
   }
 
   var ENTRIES = [];
@@ -989,9 +1011,9 @@
     wordEl.classList.toggle("is-expr", entry.type === "expression");
     backWordEl.textContent = entry.mot;
     backWordEl.classList.toggle("is-expr", entry.type === "expression");
-    defEl.innerHTML = entry.def;
-    exEl.innerHTML = "« " + entry.ex + " »";
-    synEl.textContent = entry.syn;
+    defEl.innerHTML = entry.def ? entry.def : "<em>Définition à compléter&hellip;</em>";
+    exEl.innerHTML = entry.ex ? ("« " + entry.ex + " »") : "<em>Exemple à ajouter&hellip;</em>";
+    synEl.textContent = entry.syn || "—";
     starBtn.innerHTML = learned.has(entry.id) ? "&#9733;" : "&#9734;";
     starBtn.classList.toggle("on", learned.has(entry.id));
     starBtn.onclick = function (ev) {
@@ -1102,6 +1124,33 @@
   var addForm = document.getElementById("add-form");
   var myWordsList = document.getElementById("my-words-list");
 
+  var editingId = null;
+  var addSubmitBtn = document.getElementById("add-submit-btn");
+  var editCancelBtn = document.getElementById("edit-cancel-btn");
+
+  function resetToAddMode() {
+    editingId = null;
+    addForm.reset();
+    addSubmitBtn.textContent = "Ajouter à mon carnet";
+    editCancelBtn.hidden = true;
+  }
+
+  function startEditing(entry) {
+    editingId = entry.id;
+    document.getElementById("f-mot").value = unescapeHtml(entry.mot);
+    document.getElementById("f-type").value = entry.type;
+    document.getElementById("f-emoji").value = entry.emoji === "📝" ? "" : entry.emoji;
+    document.getElementById("f-def").value = unescapeHtml(entry.def);
+    document.getElementById("f-ex").value = unescapeHtml(stripStrong(entry.ex));
+    document.getElementById("f-syn").value = entry.syn;
+    addSubmitBtn.textContent = "Enregistrer les modifications";
+    editCancelBtn.hidden = false;
+    addForm.scrollIntoView({ behavior: "smooth", block: "start" });
+    document.getElementById("f-mot").focus();
+  }
+
+  editCancelBtn.addEventListener("click", resetToAddMode);
+
   addForm.addEventListener("submit", function (e) {
     e.preventDefault();
     var motRaw = document.getElementById("f-mot").value.trim();
@@ -1115,14 +1164,36 @@
     var mot = escapeHtml(motRaw);
     var def = escapeHtml(defRaw);
     var ex = autoBold(escapeHtml(exRaw), mot);
+    var fields = { mot: mot, type: type, group: GROUP_OF[type] || "mots", emoji: emoji, def: def, ex: ex, syn: synRaw };
 
-    var entry = {
-      id: "c" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
-      mot: mot, type: type, group: GROUP_OF[type] || "mots",
-      emoji: emoji, def: def, ex: ex, syn: synRaw
-    };
-    enqueueWordOp({ type: "add", entry: entry });
-    addForm.reset();
+    if (editingId) {
+      enqueueWordOp({ type: "edit", id: editingId, patch: fields });
+    } else {
+      var entry = Object.assign({ id: "c" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6) }, fields);
+      enqueueWordOp({ type: "add", entry: entry });
+    }
+    resetToAddMode();
+  });
+
+  document.getElementById("bulk-add-btn").addEventListener("click", function () {
+    var bulkInput = document.getElementById("f-bulk");
+    var type = document.getElementById("f-bulk-type").value;
+    var lines = bulkInput.value.split("\n").map(function (line) {
+      return line.replace(/^\s*[-*•]\s*/, "").replace(/^\s*\d+[.)]\s*/, "").trim();
+    }).filter(function (line) { return line.length > 0; });
+    if (!lines.length) return;
+    var ops = lines.map(function (line, i) {
+      return {
+        type: "add",
+        entry: {
+          id: "c" + Date.now().toString(36) + i + Math.random().toString(36).slice(2, 5),
+          mot: escapeHtml(line), type: type, group: GROUP_OF[type] || "mots",
+          emoji: "📝", def: "", ex: "", syn: ""
+        }
+      };
+    });
+    enqueueWordOps(ops);
+    bulkInput.value = "";
   });
 
   function renderMyWords() {
@@ -1136,15 +1207,22 @@
       row.className = "my-word-row";
       row.innerHTML =
         '<span class="mw-emoji">' + entry.emoji + '</span>' +
-        '<span class="mw-word">' + entry.mot + '</span>' +
+        '<span class="mw-word">' + entry.mot + (entry.def ? "" : " <em>(à compléter)</em>") + '</span>' +
         '<span class="mw-type">' + TYPE_LABELS[entry.type] + '</span>';
+      var editBtn = document.createElement("button");
+      editBtn.className = "mw-delete";
+      editBtn.setAttribute("aria-label", "Modifier ce mot");
+      editBtn.innerHTML = "&#9999;&#65039;";
+      editBtn.addEventListener("click", function () { startEditing(entry); });
       var delBtn = document.createElement("button");
       delBtn.className = "mw-delete";
       delBtn.setAttribute("aria-label", "Supprimer ce mot");
       delBtn.innerHTML = "&#10005;";
       delBtn.addEventListener("click", function () {
+        if (editingId === entry.id) resetToAddMode();
         enqueueWordOp({ type: "delete", id: entry.id });
       });
+      row.appendChild(editBtn);
       row.appendChild(delBtn);
       myWordsList.appendChild(row);
     });
