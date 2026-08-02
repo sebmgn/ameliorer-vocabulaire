@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Focus — Carnet de mots</title>
+<style>
+  :root {
+    --paper: #EEF0E7;
+    --paper-line: rgba(70,100,130,0.14);
+    --ink: #1E2A38;
+    --ink-soft: #55636D;
+    --ink-faint: #93998F;
+    --card-bg: #FBFAF4;
+    --card-border: #D9D4BE;
+    --card-shadow: rgba(30,40,50,0.20);
+    --rule-blue: #4E6E8E;
+    --accent: #B23A3E;
+    --accent-strong: #B23A3E;
+    --accent-ink: #FBF7EE;
+    --focus: #2662A8;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background:
+      repeating-linear-gradient(
+        to bottom,
+        transparent 0, transparent 31px,
+        var(--paper-line) 31px, var(--paper-line) 32px
+      ),
+      var(--paper);
+    color: var(--ink);
+    font-family: Georgia, 'Iowan Old Style', 'Palatino Linotype', 'Book Antiqua', serif;
+    line-height: 1.5;
+    min-height: 100vh;
+  }
+  ::selection { background: var(--accent); color: var(--accent-ink); }
+  a { color: inherit; }
+  button { font-family: inherit; }
+  :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: 2px; }
+
+  .page {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 3rem 2rem 4rem;
+    position: relative;
+  }
+  .page::before {
+    content: "";
+    position: absolute;
+    top: 0; bottom: 0;
+    left: 2.4rem;
+    width: 2px;
+    background: var(--focus);
+    opacity: 0.55;
+  }
+  @media (max-width: 640px) {
+    .page::before { left: 0.9rem; }
+    .page { padding: 2.5rem 1.1rem 3rem; }
+  }
+
+  .masthead { margin-left: 3rem; margin-bottom: 0.6rem; }
+  @media (max-width: 640px) { .masthead { margin-left: 1.5rem; } }
+  .eyebrow {
+    font-family: -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin: 0 0 0.6rem;
+  }
+  h1 {
+    font-size: clamp(2rem, 5vw, 2.9rem);
+    font-weight: 600;
+    margin: 0;
+    text-wrap: balance;
+    letter-spacing: -0.01em;
+    background: linear-gradient(100deg, var(--ink) 40%, var(--focus) 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+
+  .back-link {
+    margin: 1.2rem 0 2.25rem 3rem;
+    font-family: -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    font-size: 0.88rem;
+  }
+  @media (max-width: 640px) { .back-link { margin-left: 1.5rem; } }
+  .back-link a {
+    color: var(--ink-soft); text-decoration: none; border-bottom: 1px solid transparent;
+  }
+  .back-link a:hover { color: var(--ink); border-bottom-color: var(--ink-faint); }
+
+  .list-view { margin-left: 3rem; max-width: 760px; }
+  @media (max-width: 640px) { .list-view { margin-left: 1.5rem; } }
+  .list-view p.intro { color: var(--ink-soft); font-style: italic; margin: 0 0 1.75rem; max-width: 60ch; }
+  .list-heading {
+    display: flex; align-items: center; gap: 0.6rem;
+    font-family: -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    font-size: 1rem; font-weight: 700; color: var(--ink); margin: 0 0 1rem;
+  }
+  .count-pill {
+    font-size: 0.75rem; font-weight: 600; color: var(--focus); background: var(--card-bg);
+    border: 1px solid var(--focus); border-radius: 999px; padding: 0.1rem 0.6rem;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .index-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 0.6rem; margin-top: 0.9rem;
+  }
+  .index-tile {
+    text-align: left; background: var(--card-bg); cursor: pointer;
+    border: 1px solid var(--focus); border-radius: 8px; padding: 0.7rem 0.85rem;
+    color: var(--ink-soft); font-size: 0.82rem; display: flex; gap: 0.55rem; align-items: center;
+    font-family: -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  }
+  .index-tile:hover { color: var(--ink); box-shadow: 0 10px 22px -14px var(--card-shadow); }
+  .index-tile .idx-emoji { font-size: 1.05rem; flex: none; }
+  .index-tile .idx-word { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .index-tile .idx-type {
+    flex: none; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-faint);
+  }
+  .index-tile .idx-remove {
+    flex: none; background: none; border: 1px solid var(--card-border); border-radius: 999px;
+    color: var(--ink-faint); cursor: pointer; font-size: 0.7rem; padding: 0.2rem 0.4rem; line-height: 1;
+  }
+  .index-tile .idx-remove:hover { border-color: var(--accent-strong); color: var(--accent-strong); }
+
+  .no-words {
+    color: var(--ink-faint); font-style: italic; font-size: 0.92rem;
+    font-family: -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header class="masthead">
+    <p class="eyebrow">Carnet personnel</p>
+    <h1>&#11088; Focus</h1>
+  </header>
+
+  <p class="back-link"><a href="carnet-de-mots.html">&larr; Retour au Carnet</a></p>
+
+  <section class="list-view">
+    <p class="intro">Les mots que tu as mis en focus &mdash; clique sur un mot pour l&rsquo;ouvrir dans le Carnet, ou retire-le directement d&rsquo;ici.</p>
+    <h2 class="list-heading">&#11088; Focus <span id="focus-count" class="count-pill"></span></h2>
+    <div class="index-grid" id="focus-grid"></div>
+  </section>
+
+</div>
+
+<script src="words-data.js"></script>
+<script>
+(function () {
+  "use strict";
+
+  var CUSTOM_KEY = "carnet-de-mots-custom";
+  var FOCUS_KEY = "carnet-de-mots-focus";
+  var GH_OWNER = "sebmgn";
+  var GH_REPO = "ameliorer-vocabulaire";
+  var GH_BRANCH = "main";
+  var GH_WORDS_PATH = "words.json";
+
+  var customEntries = [];
+  try {
+    customEntries = JSON.parse(localStorage.getItem(CUSTOM_KEY) || "[]");
+  } catch (e) { customEntries = []; }
+
+  var focusSet = {};
+  try {
+    focusSet = JSON.parse(localStorage.getItem(FOCUS_KEY) || "{}");
+  } catch (e) { focusSet = {}; }
+
+  function isFocus(id) { return !!focusSet[id]; }
+  function persistFocus() { localStorage.setItem(FOCUS_KEY, JSON.stringify(focusSet)); }
+  function removeFocus(id) { delete focusSet[id]; persistFocus(); }
+
+  var ENTRIES = [];
+  function rebuildEntries() { ENTRIES = BASE_ENTRIES.concat(customEntries); }
+  rebuildEntries();
+
+  var gridEl = document.getElementById("focus-grid");
+  var countEl = document.getElementById("focus-count");
+
+  function render() {
+    var matching = ENTRIES.filter(function (e) { return isFocus(e.id); });
+    countEl.textContent = matching.length;
+    gridEl.innerHTML = "";
+    if (matching.length === 0) {
+      gridEl.innerHTML = '<p class="no-words">Aucun mot en focus pour l&rsquo;instant &mdash; marque des mots depuis le Carnet avec le bouton &laquo;&nbsp;&#11088; Focus&nbsp;&raquo;.</p>';
+      return;
+    }
+    matching.forEach(function (entry) {
+      var tile = document.createElement("div");
+      tile.className = "index-tile";
+      tile.setAttribute("tabindex", "0");
+      tile.setAttribute("role", "button");
+      tile.innerHTML =
+        '<span class="idx-emoji">' + entry.emoji + '</span>' +
+        '<span class="idx-word">' + entry.mot + '</span>' +
+        '<span class="idx-type">' + (TYPE_LABELS[entry.type] || "") + '</span>';
+      var removeBtn = document.createElement("button");
+      removeBtn.className = "idx-remove";
+      removeBtn.innerHTML = "&#10005;";
+      removeBtn.setAttribute("aria-label", "Retirer du focus");
+      removeBtn.addEventListener("click", function (ev) {
+        ev.stopPropagation();
+        removeFocus(entry.id);
+        render();
+      });
+      tile.appendChild(removeBtn);
+      function goto() { window.location.href = "carnet-de-mots.html?focus=" + encodeURIComponent(entry.id); }
+      tile.addEventListener("click", goto);
+      tile.addEventListener("keydown", function (e) {
+        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); goto(); }
+      });
+      gridEl.appendChild(tile);
+    });
+  }
+
+  render();
+
+  // Rafraîchit les mots ajoutés depuis les autres appareils (words.json est la
+  // référence, le cache local peut être périmé si le Carnet n'a pas resynchro ici).
+  fetch("https://api.github.com/repos/" + GH_OWNER + "/" + GH_REPO + "/contents/" + GH_WORDS_PATH + "?ref=" + GH_BRANCH,
+    { headers: { "Accept": "application/vnd.github+json" } })
+    .then(function (res) { return res.ok ? res.json() : null; })
+    .then(function (data) {
+      if (!data) return;
+      var list = JSON.parse(decodeURIComponent(escape(atob((data.content || "").replace(/\n/g, "")))));
+      if (Array.isArray(list)) {
+        customEntries = list;
+        rebuildEntries();
+        render();
+      }
+    })
+    .catch(function () { /* hors-ligne ou repo inaccessible : on garde le cache local */ });
+})();
+</script>
+</body>
+</html>
