@@ -23,6 +23,7 @@
     --cat-adjectif: #7B4FA0;
     --cat-nom: #C97A2B;
     --cat-adverbe: #1E7A8C;
+    --cat-citation: #9C7C1F;
     --tag-todo: #B8860B;
     --tag-done: #3F9142;
   }
@@ -199,6 +200,7 @@
   .flashcard[data-cat="adverbe"] .flashcard-inner { --cat-color: var(--cat-adverbe); }
   .flashcard[data-cat="expression"] .flashcard-inner { --cat-color: var(--accent-strong); }
   .flashcard[data-cat="anecdote"] .flashcard-inner { --cat-color: var(--focus); }
+  .flashcard[data-cat="citation"] .flashcard-inner { --cat-color: var(--cat-citation); }
   .flashcard.is-flipped .flashcard-inner { transform: rotateY(180deg); }
   @media (prefers-reduced-motion: reduce) {
     .flashcard-inner { transition: none; }
@@ -280,6 +282,7 @@
   .example { font-style: italic; color: var(--ink-soft); }
   .example strong { font-style: normal; color: var(--ink); font-weight: 700; background: color-mix(in srgb, var(--cat-color) 18%, transparent); padding: 0.05em 0.3em; border-radius: 4px; }
   .synonyms { margin: 0; font-size: 1.02rem; color: var(--ink-soft); font-style: italic; }
+  .auteur { margin: 0; font-size: 1.02rem; color: var(--ink); font-weight: 600; }
 
   .controls-row {
     margin: 1.75rem 0 0 3rem; display: flex; gap: 1.25rem; align-items: center;
@@ -547,10 +550,12 @@
             </div>
             <h3 class="section-label">D&eacute;finition</h3>
             <p class="definition" id="face-def"></p>
-            <h3 class="section-label">Exemple</h3>
+            <h3 class="section-label" id="face-example-label">Exemple</h3>
             <p class="example" id="face-example"></p>
-            <h3 class="section-label">Synonymes</h3>
+            <h3 class="section-label" id="face-synonyms-label">Synonymes</h3>
             <p class="synonyms" id="face-synonyms"></p>
+            <h3 class="section-label" id="face-auteur-label">Auteur</h3>
+            <p class="auteur" id="face-auteur"></p>
           </div>
         </div>
       </div>
@@ -596,6 +601,7 @@
           <option value="adjectif">Adjectif</option>
           <option value="nom">Nom</option>
           <option value="adverbe">Adverbe</option>
+          <option value="citation">Citation</option>
           <option value="anecdote">Anecdote culturelle</option>
         </select>
         <button type="button" class="submit-btn" id="bulk-add-btn">Ajouter la liste</button>
@@ -632,6 +638,7 @@
             <option value="nom">Nom</option>
             <option value="adverbe">Adverbe</option>
             <option value="expression">Expression / locution</option>
+            <option value="citation">Citation</option>
             <option value="anecdote">Anecdote culturelle</option>
           </select>
         </div>
@@ -653,6 +660,10 @@
       <div class="field">
         <label for="f-syn">Synonymes</label>
         <input type="text" id="f-syn" placeholder="s&eacute;par&eacute;s par des virgules" />
+      </div>
+      <div class="field">
+        <label for="f-auteur">Auteur <span style="text-transform:none; font-weight:400;">(pour une citation)</span></label>
+        <input type="text" id="f-auteur" placeholder="ex&nbsp;: Victor Hugo" />
       </div>
       <div class="form-actions">
         <button type="submit" class="submit-btn" id="add-submit-btn">Ajouter &agrave; mon carnet</button>
@@ -960,6 +971,7 @@
   var defEl = document.getElementById("face-def");
   var exEl = document.getElementById("face-example");
   var synEl = document.getElementById("face-synonyms");
+  var auteurEl = document.getElementById("face-auteur");
   var tagTodoBtn = document.getElementById("tag-todo-btn");
   var tagDoneBtn = document.getElementById("tag-done-btn");
   var tagFocusBtn = document.getElementById("tag-focus-btn");
@@ -975,7 +987,7 @@
 
   function buildFilters() {
     filtersEl.innerHTML = "";
-    ["tous", "mots", "expressions", "anecdote"].forEach(function (g) {
+    ["tous", "mots", "expressions", "citations", "anecdote"].forEach(function (g) {
       var count = ENTRIES.filter(function (e) { return g === "tous" || e.group === g; }).length;
       var btn = document.createElement("button");
       btn.className = "filter-btn" + (g === activeGroup ? " active" : "");
@@ -1065,8 +1077,9 @@
             '<div class="face back">' +
               '<div class="back-top"><div class="back-emoji" id="back-emoji"></div><div class="back-word" id="back-word"></div></div>' +
               '<h3 class="section-label">Définition</h3><p class="definition" id="face-def"></p>' +
-              '<h3 class="section-label">Exemple</h3><p class="example" id="face-example"></p>' +
-              '<h3 class="section-label">Synonymes</h3><p class="synonyms" id="face-synonyms"></p>' +
+              '<h3 class="section-label" id="face-example-label">Exemple</h3><p class="example" id="face-example"></p>' +
+              '<h3 class="section-label" id="face-synonyms-label">Synonymes</h3><p class="synonyms" id="face-synonyms"></p>' +
+              '<h3 class="section-label" id="face-auteur-label">Auteur</h3><p class="auteur" id="face-auteur"></p>' +
             '</div>' +
           '</div>' +
         '</div>';
@@ -1082,12 +1095,21 @@
     emojiEl.textContent = entry.emoji;
     backEmojiEl.textContent = entry.emoji;
     wordEl.textContent = entry.mot;
-    wordEl.classList.toggle("is-expr", entry.type === "expression");
+    wordEl.classList.toggle("is-expr", entry.type === "expression" || entry.type === "citation");
     backWordEl.textContent = entry.mot;
-    backWordEl.classList.toggle("is-expr", entry.type === "expression");
+    backWordEl.classList.toggle("is-expr", entry.type === "expression" || entry.type === "citation");
     defEl.innerHTML = entry.def ? entry.def : "<em>Définition à compléter&hellip;</em>";
+    var isCitation = entry.type === "citation";
+    document.getElementById("face-example-label").hidden = isCitation;
+    exEl.hidden = isCitation;
+    document.getElementById("face-synonyms-label").hidden = isCitation;
+    synEl.hidden = isCitation;
     exEl.innerHTML = entry.ex ? ("« " + entry.ex + " »") : "<em>Exemple à ajouter&hellip;</em>";
     synEl.textContent = entry.syn || "—";
+    var auteurLabelEl = document.getElementById("face-auteur-label");
+    auteurLabelEl.hidden = !entry.auteur;
+    auteurEl.hidden = !entry.auteur;
+    auteurEl.textContent = entry.auteur || "";
     function refreshTagBtns() {
       var t = getTag(entry.id);
       tagTodoBtn.classList.toggle("on", t === "a_apprendre");
@@ -1135,6 +1157,7 @@
     defEl = document.getElementById("face-def");
     exEl = document.getElementById("face-example");
     synEl = document.getElementById("face-synonyms");
+    auteurEl = document.getElementById("face-auteur");
     tagTodoBtn = document.getElementById("tag-todo-btn");
     tagDoneBtn = document.getElementById("tag-done-btn");
     tagFocusBtn = document.getElementById("tag-focus-btn");
@@ -1245,6 +1268,7 @@
     document.getElementById("f-def").value = unescapeHtml(entry.def);
     document.getElementById("f-ex").value = unescapeHtml(stripStrong(entry.ex));
     document.getElementById("f-syn").value = entry.syn;
+    document.getElementById("f-auteur").value = entry.auteur || "";
     addSubmitBtn.textContent = "Enregistrer les modifications";
     editCancelBtn.hidden = false;
     addForm.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -1262,11 +1286,12 @@
     var emoji = document.getElementById("f-emoji").value.trim() || "📝";
     var exRaw = document.getElementById("f-ex").value.trim();
     var synRaw = document.getElementById("f-syn").value.trim();
+    var auteurRaw = document.getElementById("f-auteur").value.trim();
 
     var mot = escapeHtml(motRaw);
     var def = escapeHtml(defRaw);
     var ex = autoBold(escapeHtml(exRaw), mot);
-    var fields = { mot: mot, type: type, group: GROUP_OF[type] || "mots", emoji: emoji, def: def, ex: ex, syn: synRaw };
+    var fields = { mot: mot, type: type, group: GROUP_OF[type] || "mots", emoji: emoji, def: def, ex: ex, syn: synRaw, auteur: escapeHtml(auteurRaw) };
 
     if (editingId) {
       enqueueWordOp({ type: "edit", id: editingId, patch: fields });
