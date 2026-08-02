@@ -258,6 +258,10 @@
     font-size: clamp(2rem, 5.2vw, 3.1rem); font-weight: 600; text-wrap: balance;
   }
   .word.is-expr { font-style: italic; font-weight: 500; font-size: clamp(1.6rem, 4.4vw, 2.4rem); }
+  .front-auteur {
+    text-align: center; margin: 0.5rem 0 0; font-family: -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    font-size: 0.95rem; color: var(--cat-color); font-weight: 600;
+  }
   .hint {
     text-align: center; margin: 0; font-family: -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     font-size: 0.8rem; color: var(--ink-faint); font-style: normal;
@@ -541,6 +545,7 @@
             </div>
             <div class="emoji-badge" id="face-emoji">&#10024;</div>
             <p class="word" id="face-word">mot</p>
+            <p class="front-auteur" id="front-auteur"></p>
             <p class="hint">cliquer ou espace pour r&eacute;v&eacute;ler &#8628;</p>
           </div>
           <div class="face back" id="face-back">
@@ -966,6 +971,7 @@
   var typeEl = document.getElementById("face-type");
   var emojiEl = document.getElementById("face-emoji");
   var wordEl = document.getElementById("face-word");
+  var frontAuteurEl = document.getElementById("front-auteur");
   var backEmojiEl = document.getElementById("back-emoji");
   var backWordEl = document.getElementById("back-word");
   var defEl = document.getElementById("face-def");
@@ -1072,6 +1078,7 @@
               '</div>' +
               '<div class="emoji-badge" id="face-emoji"></div>' +
               '<p class="word" id="face-word"></p>' +
+              '<p class="front-auteur" id="front-auteur"></p>' +
               '<p class="hint">cliquer ou espace pour révéler &#8628;</p>' +
             '</div>' +
             '<div class="face back">' +
@@ -1096,6 +1103,8 @@
     backEmojiEl.textContent = entry.emoji;
     wordEl.textContent = entry.mot;
     wordEl.classList.toggle("is-expr", entry.type === "expression" || entry.type === "citation");
+    frontAuteurEl.textContent = entry.auteur ? ("— " + entry.auteur) : "";
+    frontAuteurEl.hidden = !entry.auteur;
     backWordEl.textContent = entry.mot;
     backWordEl.classList.toggle("is-expr", entry.type === "expression" || entry.type === "citation");
     defEl.innerHTML = entry.def ? entry.def : "<em>Définition à compléter&hellip;</em>";
@@ -1152,6 +1161,7 @@
     typeEl = document.getElementById("face-type");
     emojiEl = document.getElementById("face-emoji");
     wordEl = document.getElementById("face-word");
+    frontAuteurEl = document.getElementById("front-auteur");
     backEmojiEl = document.getElementById("back-emoji");
     backWordEl = document.getElementById("back-word");
     defEl = document.getElementById("face-def");
