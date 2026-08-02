@@ -913,12 +913,12 @@
       ex: "",
       syn: "",
       auteur: "Victor Hugo" },
-    { mot: "dieu est peut-être éternel, mais pas autant que la connerie humaine", emoji: "😇", type: "citation",
+    { mot: "dieu est peut-être éternel, mais pas autant que la connerie humaine", emoji: "😇", type: "humour",
       def: "Formule provocatrice qui joue sur l’idée que la bêtise humaine semble encore plus inépuisable que l’éternité divine.",
       ex: "",
       syn: "",
       auteur: "Pierre Desproges, Fonds de tiroir (1990)" },
-    { mot: "je suis capable du meilleur comme du pire, mais dans le pire, c’est moi le meilleur", emoji: "😈", type: "citation",
+    { mot: "je suis capable du meilleur comme du pire, mais dans le pire, c’est moi le meilleur", emoji: "😈", type: "humour",
       def: "Formule d’autodérision qui revendique avec humour sa propre capacité à mal faire, mieux que quiconque.",
       ex: "",
       syn: "",
@@ -1003,7 +1003,7 @@
       ex: "",
       syn: "",
       auteur: "Attribution à Bill Gates très répandue mais non confirmée par une source primaire" },
-    { mot: "c’est comme thanos, c’est inévitable", emoji: "🫰", type: "citation",
+    { mot: "c’est comme thanos, c’est inévitable", emoji: "🫰", type: "humour",
       def: "Référence à la réplique du grand méchant du film, devenue une façon populaire de qualifier un événement qu’on présente comme impossible à éviter.",
       ex: "",
       syn: "",
@@ -1013,32 +1013,32 @@
       ex: "",
       syn: "",
       auteur: "Evelyn Beatrice Hall, The Friends of Voltaire (1906) — souvent attribuée à tort à Voltaire" },
-    { mot: "ta réflexion est encore plus vide que le cœur d’un atome", emoji: "⚛️", type: "citation",
+    { mot: "ta réflexion est encore plus vide que le cœur d’un atome", emoji: "⚛️", type: "humour",
       def: "Pique humoristique jouant sur le fait qu’un atome est, en volume, presque entièrement constitué de vide.",
       ex: "",
       syn: "",
       auteur: "Anonyme" },
-    { mot: "c’est systématiquement débile, mais toujours surprenant", emoji: "🙃", type: "citation",
+    { mot: "c’est systématiquement débile, mais toujours surprenant", emoji: "🙃", type: "humour",
       def: "Formule ironique pour qualifier quelque chose de prévisiblement absurde tout en gardant, malgré tout, un pouvoir de surprise.",
       ex: "",
       syn: "",
       auteur: "Anonyme" },
-    { mot: "pour être respecté, faut être respectable", emoji: "🎩", type: "citation",
+    { mot: "pour être respecté, faut être respectable", emoji: "🎩", type: "humour",
       def: "Rappelle que le respect que l’on reçoit dépend d’abord de la cohérence de son propre comportement.",
       ex: "",
       syn: "",
       auteur: "Anonyme" },
-    { mot: "il est pas seulement con, il est de mauvaise humeur aussi", emoji: "😤", type: "citation",
+    { mot: "il est pas seulement con, il est de mauvaise humeur aussi", emoji: "😤", type: "humour",
       def: "Pique humoristique qui enfonce le clou en ajoutant un second défaut au premier.",
       ex: "",
       syn: "",
       auteur: "Anonyme" },
-    { mot: "j’vais demander une commission d’enquête parlementaire parce que t’es trop con", emoji: "🏛️", type: "citation",
+    { mot: "j’vais demander une commission d’enquête parlementaire parce que t’es trop con", emoji: "🏛️", type: "humour",
       def: "Boutade qui détourne le vocabulaire institutionnel sérieux pour une pique volontairement disproportionnée.",
       ex: "",
       syn: "",
       auteur: "Anonyme" },
-    { mot: "t’as une bonne mémoire, t’oublies jamais d’être débile", emoji: "🧠", type: "citation",
+    { mot: "t’as une bonne mémoire, t’oublies jamais d’être débile", emoji: "🧠", type: "humour",
       def: "Pique humoristique qui détourne le compliment d’une bonne mémoire en critique déguisée.",
       ex: "",
       syn: "",
@@ -1073,9 +1073,9 @@
 
   var TYPE_LABELS = {
     verbe: "Verbe", adjectif: "Adjectif", nom: "Nom", adverbe: "Adverbe",
-    expression: "Expression", anecdote: "Anecdote culturelle", citation: "Citation"
+    expression: "Expression", anecdote: "Anecdote culturelle", citation: "Citation", humour: "Humour"
   };
-  var GROUP_LABELS = { tous: "Tous", mots: "Mots", expressions: "Expressions", anecdote: "Anecdote", citations: "Citations" };
-  var GROUP_OF = { verbe: "mots", adjectif: "mots", nom: "mots", adverbe: "mots", expression: "expressions", anecdote: "anecdote", citation: "citations" };
+  var GROUP_LABELS = { tous: "Tous", mots: "Mots", expressions: "Expressions", anecdote: "Anecdote", citations: "Citations", humour: "Humour" };
+  var GROUP_OF = { verbe: "mots", adjectif: "mots", nom: "mots", adverbe: "mots", expression: "expressions", anecdote: "anecdote", citation: "citations", humour: "humour" };
 
   BASE_ENTRIES.forEach(function (e, i) { e.id = i; e.group = GROUP_OF[e.type]; });

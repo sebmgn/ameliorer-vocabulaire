@@ -24,6 +24,7 @@
     --cat-nom: #C97A2B;
     --cat-adverbe: #1E7A8C;
     --cat-citation: #9C7C1F;
+    --cat-humour: #C2478C;
     --tag-todo: #B8860B;
     --tag-done: #3F9142;
   }
@@ -201,6 +202,7 @@
   .flashcard[data-cat="expression"] .flashcard-inner { --cat-color: var(--accent-strong); }
   .flashcard[data-cat="anecdote"] .flashcard-inner { --cat-color: var(--focus); }
   .flashcard[data-cat="citation"] .flashcard-inner { --cat-color: var(--cat-citation); }
+  .flashcard[data-cat="humour"] .flashcard-inner { --cat-color: var(--cat-humour); }
   .flashcard.is-flipped .flashcard-inner { transform: rotateY(180deg); }
   @media (prefers-reduced-motion: reduce) {
     .flashcard-inner { transition: none; }
@@ -607,6 +609,7 @@
           <option value="nom">Nom</option>
           <option value="adverbe">Adverbe</option>
           <option value="citation">Citation</option>
+          <option value="humour">Humour</option>
           <option value="anecdote">Anecdote culturelle</option>
         </select>
         <button type="button" class="submit-btn" id="bulk-add-btn">Ajouter la liste</button>
@@ -644,6 +647,7 @@
             <option value="adverbe">Adverbe</option>
             <option value="expression">Expression / locution</option>
             <option value="citation">Citation</option>
+            <option value="humour">Humour</option>
             <option value="anecdote">Anecdote culturelle</option>
           </select>
         </div>
@@ -684,7 +688,7 @@
 
 </div>
 
-<script src="words-data.js?v=2"></script>
+<script src="words-data.js?v=3"></script>
 <script>
 (function () {
   "use strict";
@@ -993,7 +997,7 @@
 
   function buildFilters() {
     filtersEl.innerHTML = "";
-    ["tous", "mots", "expressions", "citations", "anecdote"].forEach(function (g) {
+    ["tous", "mots", "expressions", "citations", "humour", "anecdote"].forEach(function (g) {
       var count = ENTRIES.filter(function (e) { return g === "tous" || e.group === g; }).length;
       var btn = document.createElement("button");
       btn.className = "filter-btn" + (g === activeGroup ? " active" : "");
@@ -1102,17 +1106,17 @@
     emojiEl.textContent = entry.emoji;
     backEmojiEl.textContent = entry.emoji;
     wordEl.textContent = entry.mot;
-    wordEl.classList.toggle("is-expr", entry.type === "expression" || entry.type === "citation");
+    var isQuoteLike = entry.type === "citation" || entry.type === "humour";
+    wordEl.classList.toggle("is-expr", entry.type === "expression" || isQuoteLike);
     frontAuteurEl.textContent = entry.auteur ? ("— " + entry.auteur) : "";
     frontAuteurEl.hidden = !entry.auteur;
     backWordEl.textContent = entry.mot;
-    backWordEl.classList.toggle("is-expr", entry.type === "expression" || entry.type === "citation");
+    backWordEl.classList.toggle("is-expr", entry.type === "expression" || isQuoteLike);
     defEl.innerHTML = entry.def ? entry.def : "<em>Définition à compléter&hellip;</em>";
-    var isCitation = entry.type === "citation";
-    document.getElementById("face-example-label").hidden = isCitation;
-    exEl.hidden = isCitation;
-    document.getElementById("face-synonyms-label").hidden = isCitation;
-    synEl.hidden = isCitation;
+    document.getElementById("face-example-label").hidden = isQuoteLike;
+    exEl.hidden = isQuoteLike;
+    document.getElementById("face-synonyms-label").hidden = isQuoteLike;
+    synEl.hidden = isQuoteLike;
     exEl.innerHTML = entry.ex ? ("« " + entry.ex + " »") : "<em>Exemple à ajouter&hellip;</em>";
     synEl.textContent = entry.syn || "—";
     var auteurLabelEl = document.getElementById("face-auteur-label");
