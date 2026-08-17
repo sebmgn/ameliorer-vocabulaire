@@ -8,6 +8,7 @@
     "64": "a_apprendre",
     "66": "a_apprendre",
     "67": "a_apprendre",
+    "77": "a_apprendre",
     "234": "a_apprendre"
   },
   "focus": {
@@ -26,6 +27,7 @@
     "58": true,
     "61": true,
     "62": true,
+    "85": true,
     "226": true,
     "229": true,
     "232": true,
