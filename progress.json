@@ -1,7 +1,13 @@
 {
-  "tags": {},
+  "tags": {
+    "234": "a_apprendre"
+  },
   "focus": {
     "226": true,
-    "229": true
+    "229": true,
+    "232": true,
+    "233": true,
+    "235": true,
+    "238": true
   }
 }
