@@ -159,10 +159,12 @@
 
   var CUSTOM_KEY = "carnet-de-mots-custom";
   var FOCUS_KEY = "carnet-de-mots-focus";
+  var GH_TOKEN_KEY = "ghSyncToken";
   var GH_OWNER = "sebmgn";
   var GH_REPO = "ameliorer-vocabulaire";
   var GH_BRANCH = "main";
   var GH_WORDS_PATH = "words.json";
+  var GH_PROGRESS_PATH = "progress.json";
 
   var customEntries = [];
   try {
@@ -176,7 +178,71 @@
 
   function isFocus(id) { return !!focusSet[id]; }
   function persistFocus() { localStorage.setItem(FOCUS_KEY, JSON.stringify(focusSet)); }
-  function removeFocus(id) { delete focusSet[id]; persistFocus(); }
+
+  function getGhToken() {
+    try { return localStorage.getItem(GH_TOKEN_KEY) || ""; } catch (e) { return ""; }
+  }
+  function b64EncodeUtf8(str) { return btoa(unescape(encodeURIComponent(str))); }
+  function b64DecodeUtf8(str) { return decodeURIComponent(escape(atob(str))); }
+  function ghHeaders() {
+    var h = { "Accept": "application/vnd.github+json" };
+    var t = getGhToken();
+    if (t) h["Authorization"] = "Bearer " + t;
+    return h;
+  }
+  function ghProgressUrl() {
+    return "https://api.github.com/repos/" + GH_OWNER + "/" + GH_REPO + "/contents/" + GH_PROGRESS_PATH;
+  }
+  async function ghFetchProgress() {
+    var res = await fetch(ghProgressUrl() + "?ref=" + GH_BRANCH, { headers: ghHeaders() });
+    if (res.status === 404) return { state: { tags: {}, focus: {} }, sha: null };
+    if (!res.ok) throw new Error("GitHub GET " + res.status);
+    var data = await res.json();
+    var state;
+    try { state = JSON.parse(b64DecodeUtf8((data.content || "").replace(/\n/g, ""))); } catch (e) { state = {}; }
+    if (!state || typeof state !== "object") state = {};
+    if (!state.tags) state.tags = {};
+    if (!state.focus) state.focus = {};
+    return { state: state, sha: data.sha };
+  }
+  async function ghPutProgress(state, sha) {
+    var body = {
+      message: "progress: remove focus",
+      content: b64EncodeUtf8(JSON.stringify(state, null, 2)),
+      branch: GH_BRANCH
+    };
+    if (sha) body.sha = sha;
+    var res = await fetch(ghProgressUrl(), {
+      method: "PUT",
+      headers: Object.assign({ "Content-Type": "application/json" }, ghHeaders()),
+      body: JSON.stringify(body)
+    });
+    if (res.status === 409 || res.status === 422) { var conflictErr = new Error("conflict"); conflictErr.conflict = true; throw conflictErr; }
+    if (!res.ok) throw new Error("GitHub PUT " + res.status);
+    var data = await res.json();
+    return data.content.sha;
+  }
+  async function removeFocusRemote(id) {
+    if (!getGhToken()) return;
+    for (var attempt = 0; attempt < 4; attempt++) {
+      try {
+        var remote = await ghFetchProgress();
+        var nextFocus = Object.assign({}, remote.state.focus);
+        delete nextFocus[id];
+        await ghPutProgress({ tags: remote.state.tags, focus: nextFocus }, remote.sha);
+        return;
+      } catch (e) {
+        if (e && e.conflict) continue;
+        console.error("Focus remote removal failed", e);
+        return;
+      }
+    }
+  }
+  function removeFocus(id) {
+    delete focusSet[id];
+    persistFocus();
+    removeFocusRemote(id);
+  }
 
   var ENTRIES = [];
   function rebuildEntries() { ENTRIES = BASE_ENTRIES.concat(customEntries); }
@@ -236,6 +302,16 @@
         rebuildEntries();
         render();
       }
+    })
+    .catch(function () { /* hors-ligne ou repo inaccessible : on garde le cache local */ });
+
+  // Idem pour la liste focus elle-même : un mot mis en focus depuis un autre
+  // appareil doit apparaître ici même si ce navigateur-ci n'a jamais resynchro.
+  ghFetchProgress()
+    .then(function (remote) {
+      focusSet = remote.state.focus || {};
+      persistFocus();
+      render();
     })
     .catch(function () { /* hors-ligne ou repo inaccessible : on garde le cache local */ });
 })();

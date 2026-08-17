@@ -706,6 +706,7 @@
   var GH_REPO = "ameliorer-vocabulaire";
   var GH_BRANCH = "main";
   var GH_WORDS_PATH = "words.json";
+  var GH_PROGRESS_PATH = "progress.json";
   var GH_TOKEN_KEY = "ghSyncToken";
   var CUSTOM_KEY = "carnet-de-mots-custom";
   var WORDS_QUEUE_KEY = "carnetWordsQueue";
@@ -729,6 +730,18 @@
   function saveWordsQueue(q) {
     localStorage.setItem(WORDS_QUEUE_KEY, JSON.stringify(q));
   }
+  // Une seule fois par appareil : les mots déjà présents localement (avant que
+  // cet appareil n'ait jamais synchronisé) sont fusionnés avec le contenu
+  // distant plutôt qu'écrasés par lui — sinon un deuxième appareil qui a déjà
+  // des mots perso perdrait silencieusement ces mots au premier sync.
+  if (localStorage.getItem(WORDS_MIGRATED_KEY) !== "1") {
+    if (customEntries.length > 0) {
+      var initialWordsQueue = loadWordsQueue();
+      initialWordsQueue.unshift({ type: "merge", entries: customEntries });
+      saveWordsQueue(initialWordsQueue);
+    }
+    localStorage.setItem(WORDS_MIGRATED_KEY, "1");
+  }
   function getGhToken() {
     try { return localStorage.getItem(GH_TOKEN_KEY) || ""; } catch (e) { return ""; }
   }
@@ -743,14 +756,21 @@
     if (t) h["Authorization"] = "Bearer " + t;
     return h;
   }
-  function ghWordsUrl() {
-    return "https://api.github.com/repos/" + GH_OWNER + "/" + GH_REPO + "/contents/" + GH_WORDS_PATH;
+  function ghContentsUrl(path) {
+    return "https://api.github.com/repos/" + GH_OWNER + "/" + GH_REPO + "/contents/" + path;
   }
+  function ghWordsUrl() { return ghContentsUrl(GH_WORDS_PATH); }
+  function ghProgressUrl() { return ghContentsUrl(GH_PROGRESS_PATH); }
   function applyWordOpToList(list, op) {
     if (op.type === "add") return list.concat([op.entry]);
     if (op.type === "delete") return list.filter(function (e) { return e.id !== op.id; });
     if (op.type === "edit") return list.map(function (e) { return e.id === op.id ? Object.assign({}, e, op.patch) : e; });
     if (op.type === "seed") return op.list;
+    if (op.type === "merge") {
+      var existingIds = {};
+      list.forEach(function (e) { existingIds[e.id] = true; });
+      return list.concat(op.entries.filter(function (e) { return !existingIds[e.id]; }));
+    }
     return list;
   }
   async function ghFetchWords() {
@@ -779,12 +799,41 @@
     var data = await res.json();
     return data.content.sha;
   }
+  async function ghFetchProgress() {
+    var res = await fetch(ghProgressUrl() + "?ref=" + GH_BRANCH, { headers: ghHeaders() });
+    if (res.status === 404) return { state: { tags: {}, focus: {} }, sha: null };
+    if (!res.ok) throw new Error("GitHub GET " + res.status);
+    var data = await res.json();
+    var state;
+    try { state = JSON.parse(b64DecodeUtf8((data.content || "").replace(/\n/g, ""))); } catch (e) { state = {}; }
+    if (!state || typeof state !== "object") state = {};
+    if (!state.tags) state.tags = {};
+    if (!state.focus) state.focus = {};
+    return { state: state, sha: data.sha };
+  }
+  async function ghPutProgress(state, sha) {
+    var body = {
+      message: "progress: sync",
+      content: b64EncodeUtf8(JSON.stringify(state, null, 2)),
+      branch: GH_BRANCH
+    };
+    if (sha) body.sha = sha;
+    var res = await fetch(ghProgressUrl(), {
+      method: "PUT",
+      headers: Object.assign({ "Content-Type": "application/json" }, ghHeaders()),
+      body: JSON.stringify(body)
+    });
+    if (res.status === 409 || res.status === 422) { var conflictErr = new Error("conflict"); conflictErr.conflict = true; throw conflictErr; }
+    if (!res.ok) throw new Error("GitHub PUT " + res.status);
+    var data = await res.json();
+    return data.content.sha;
+  }
   function updateSyncStatus(state) {
     var el = document.getElementById("sync-status");
     if (!el) return;
     var now = new Date().toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
     var labels = {
-      "no-token": "🔑 Synchro non configurée — mots locaux à cet appareil seulement",
+      "no-token": "🔑 Synchro non configurée — mots et progression locaux à cet appareil seulement",
       "syncing": "🔄 Synchronisation…",
       "synced": "✅ Synchronisé à " + now,
       "error": "⚠️ Erreur de synchro — sauvegardé localement, nouvelle tentative automatique"
@@ -801,14 +850,11 @@
       for (var attempt = 0; attempt < WORDS_SYNC_MAX_RETRIES; attempt++) {
         var remote = await ghFetchWords();
         var queue = loadWordsQueue();
-        var bootstrapping = remote.sha === null && !queue.length && localStorage.getItem(WORDS_MIGRATED_KEY) !== "1" && customEntries.length > 0;
-        if (bootstrapping) queue = [{ type: "seed", list: customEntries }];
 
         if (!queue.length) {
           customEntries = remote.list;
           persistCustom();
           localStorage.setItem(WORDS_SHA_KEY, remote.sha || "");
-          localStorage.setItem(WORDS_MIGRATED_KEY, "1");
           updateSyncStatus("synced");
           rebuildEntries(); syncOrderWithEntries(); buildFilters(); renderMyWords(); render();
           return;
@@ -820,7 +866,6 @@
           persistCustom();
           saveWordsQueue([]);
           localStorage.setItem(WORDS_SHA_KEY, newSha);
-          localStorage.setItem(WORDS_MIGRATED_KEY, "1");
           updateSyncStatus("synced");
           rebuildEntries(); syncOrderWithEntries(); buildFilters(); renderMyWords(); render();
           return;
@@ -847,6 +892,93 @@
     syncWordsNow();
   }
   function enqueueWordOp(op) { enqueueWordOps([op]); }
+
+  // ---------- Progression (tags à apprendre/appris + focus), même synchro ----------
+  // Même schéma que les mots : localStorage est un cache, progress.json dans ce
+  // dépôt est la référence, une file d'opérations est rejouée par-dessus la
+  // version distante la plus fraîche à chaque synchro.
+  var PROGRESS_QUEUE_KEY = "carnetProgressQueue";
+  var PROGRESS_SHA_KEY = "carnetProgressSha";
+  var PROGRESS_MIGRATED_KEY = "carnetProgressMigrated";
+  var progressSyncInFlight = false;
+
+  function loadProgressQueue() {
+    try { return JSON.parse(localStorage.getItem(PROGRESS_QUEUE_KEY) || "[]"); } catch (e) { return []; }
+  }
+  function saveProgressQueue(q) {
+    localStorage.setItem(PROGRESS_QUEUE_KEY, JSON.stringify(q));
+  }
+  function applyProgressOpToState(state, op) {
+    var tagsState = Object.assign({}, state.tags);
+    var focusState = Object.assign({}, state.focus);
+    if (op.type === "tag") {
+      if (op.value === null) delete tagsState[op.id]; else tagsState[op.id] = op.value;
+    } else if (op.type === "focus") {
+      if (op.value === null) delete focusState[op.id]; else focusState[op.id] = true;
+    } else if (op.type === "merge") {
+      tagsState = Object.assign({}, tagsState, op.tags);
+      focusState = Object.assign({}, focusState, op.focus);
+    }
+    return { tags: tagsState, focus: focusState };
+  }
+  async function syncProgressNow() {
+    if (progressSyncInFlight) return;
+    if (!getGhToken()) return;
+    progressSyncInFlight = true;
+    try {
+      for (var attempt = 0; attempt < WORDS_SYNC_MAX_RETRIES; attempt++) {
+        var remote = await ghFetchProgress();
+        var queue = loadProgressQueue();
+
+        if (!queue.length) {
+          tags = remote.state.tags;
+          focusSet = remote.state.focus;
+          persistTags(); persistFocus();
+          localStorage.setItem(PROGRESS_SHA_KEY, remote.sha || "");
+          updateProgress(); buildIndex();
+          if (currentView === "list") buildListView();
+          updateSyncStatus("synced");
+          return;
+        }
+        var merged = queue.reduce(applyProgressOpToState, remote.state);
+        try {
+          var newSha = await ghPutProgress(merged, remote.sha);
+          tags = merged.tags;
+          focusSet = merged.focus;
+          persistTags(); persistFocus();
+          saveProgressQueue([]);
+          localStorage.setItem(PROGRESS_SHA_KEY, newSha);
+          updateProgress(); buildIndex();
+          if (currentView === "list") buildListView();
+          updateSyncStatus("synced");
+          return;
+        } catch (e) {
+          if (e && e.conflict) continue;
+          throw e;
+        }
+      }
+      throw new Error("Trop de conflits de synchro (progression), réessaie plus tard.");
+    } catch (e) {
+      console.error("Progress sync error", e);
+      updateSyncStatus("error");
+    } finally {
+      progressSyncInFlight = false;
+    }
+  }
+  function enqueueProgressOps(ops) {
+    ops.forEach(function (op) {
+      var applied = applyProgressOpToState({ tags: tags, focus: focusSet }, op);
+      tags = applied.tags;
+      focusSet = applied.focus;
+    });
+    persistTags(); persistFocus();
+    var q = loadProgressQueue();
+    ops.forEach(function (op) { q.push(op); });
+    saveProgressQueue(q);
+    syncProgressNow();
+  }
+  function enqueueProgressOp(op) { enqueueProgressOps([op]); }
+
   function unescapeHtml(s) {
     return String(s || "").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
   }
@@ -895,8 +1027,8 @@
   function getTag(id) { return tags[id] || null; }
   function persistTags() { localStorage.setItem(TAGS_KEY, JSON.stringify(tags)); }
   function setTag(id, value) {
-    if (tags[id] === value) delete tags[id]; else tags[id] = value;
-    persistTags();
+    var newValue = tags[id] === value ? null : value;
+    enqueueProgressOp({ type: "tag", id: id, value: newValue });
   }
   function countTag(value) {
     return Object.keys(tags).filter(function (id) { return tags[id] === value; }).length;
@@ -913,10 +1045,22 @@
   function isFocus(id) { return !!focusSet[id]; }
   function persistFocus() { localStorage.setItem(FOCUS_KEY, JSON.stringify(focusSet)); }
   function toggleFocus(id) {
-    if (focusSet[id]) delete focusSet[id]; else focusSet[id] = true;
-    persistFocus();
+    var newValue = focusSet[id] ? null : true;
+    enqueueProgressOp({ type: "focus", id: id, value: newValue });
   }
   function countFocus() { return Object.keys(focusSet).length; }
+
+  // Une seule fois par appareil : les tags/focus déjà présents localement sont
+  // fusionnés avec la version distante plutôt qu'écrasés par elle (même
+  // raisonnement que pour les mots juste au-dessus).
+  if (localStorage.getItem(PROGRESS_MIGRATED_KEY) !== "1") {
+    if (Object.keys(tags).length > 0 || Object.keys(focusSet).length > 0) {
+      var initialProgressQueue = loadProgressQueue();
+      initialProgressQueue.unshift({ type: "merge", tags: tags, focus: focusSet });
+      saveProgressQueue(initialProgressQueue);
+    }
+    localStorage.setItem(PROGRESS_MIGRATED_KEY, "1");
+  }
 
   var order = ENTRIES.map(function (e) { return e.id; });
 
@@ -1239,7 +1383,7 @@
   });
 
   document.getElementById("footer-note").innerHTML =
-    "Deux lignes de la liste d’origine ont été traitées à part : « voir histoire du mot Kevin » est devenue la fiche 17, une anecdote culturelle plutôt qu’une définition ; et « elles ne sont pas séquentielles » a été lue comme une consigne plutôt qu’une fiche &mdash; d’où le bouton « Mélanger les cartes ». Le suivi « retenu » et tes mots ajoutés sont sauvegardés localement dans ce navigateur.";
+    "Deux lignes de la liste d’origine ont été traitées à part : « voir histoire du mot Kevin » est devenue la fiche 17, une anecdote culturelle plutôt qu’une définition ; et « elles ne sont pas séquentielles » a été lue comme une consigne plutôt qu’une fiche &mdash; d’où le bouton « Mélanger les cartes ». Le suivi « à apprendre / appris / focus » et tes mots ajoutés sont sauvegardés localement puis synchronisés sur tous tes appareils si un token GitHub est configuré (onglet « Ajouter un mot »).";
 
   var viewToggleEl = document.getElementById("view-toggle");
   var viewCarnetEl = document.getElementById("view-carnet");
@@ -1452,7 +1596,7 @@
   document.getElementById("sync-config-btn").addEventListener("click", function () {
     syncSetupEl.style.display = syncSetupEl.style.display === "none" ? "grid" : "none";
   });
-  document.getElementById("sync-refresh-btn").addEventListener("click", function () { syncWordsNow(); });
+  document.getElementById("sync-refresh-btn").addEventListener("click", function () { syncWordsNow(); syncProgressNow(); });
   document.getElementById("sync-token-save").addEventListener("click", function () {
     var v = syncTokenInput.value.trim();
     if (!v) return;
@@ -1460,6 +1604,7 @@
     syncTokenInput.value = "";
     syncSetupEl.style.display = "none";
     syncWordsNow();
+    syncProgressNow();
   });
   document.getElementById("sync-token-clear").addEventListener("click", function () {
     setGhToken("");
@@ -1491,7 +1636,8 @@
   renderMyWords();
   updateSyncStatus(getGhToken() ? "syncing" : "no-token");
   syncWordsNow();
-  setInterval(syncWordsNow, 60000);
+  syncProgressNow();
+  setInterval(function () { syncWordsNow(); syncProgressNow(); }, 60000);
 
   // Arrivée depuis focus.html : ouvre directement ce mot, confiné à la liste focus.
   var bootParams = new URLSearchParams(location.search);
