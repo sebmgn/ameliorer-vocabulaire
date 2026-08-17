@@ -3,11 +3,13 @@
     "234": "a_apprendre"
   },
   "focus": {
+    "2": true,
     "226": true,
     "229": true,
     "232": true,
     "233": true,
     "235": true,
-    "238": true
+    "238": true,
+    "253": true
   }
 }
