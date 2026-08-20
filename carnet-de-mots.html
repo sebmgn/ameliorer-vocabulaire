@@ -134,23 +134,25 @@
   .progress-legend .dot { width: 0.5rem; height: 0.5rem; border-radius: 50%; display: inline-block; }
   .progress-legend .dot.done { background: var(--tag-done); }
   .progress-legend .dot.todo { background: var(--tag-todo); }
+  .progress-legend .dot.focus { background: var(--focus); }
 
   .filters { display: flex; gap: 0.6rem; flex-wrap: wrap; }
   .filter-btn {
-    background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 999px;
-    color: var(--ink-soft); font-size: 0.82rem; padding: 0.35rem 0.85rem;
+    background: var(--card-bg); border: 1px solid var(--fb-color, var(--card-border)); border-radius: 999px;
+    color: var(--fb-color, var(--ink-soft)); font-size: 0.82rem; padding: 0.35rem 0.85rem;
     cursor: pointer; font-variant-numeric: tabular-nums; transition: all 0.15s ease;
   }
-  .filter-btn:hover { color: var(--ink); border-color: var(--ink-faint); }
-  .filter-btn.active { color: var(--accent-ink); border-color: transparent; font-weight: 600; background: var(--accent-strong); }
+  .filter-btn:hover { color: var(--ink); border-color: var(--fb-color, var(--ink-faint)); }
+  .filter-btn.active { color: var(--accent-ink); border-color: transparent; font-weight: 600; background: var(--fb-color, var(--accent-strong)); }
 
   .subfilters {
     display: flex; gap: 0.5rem; flex-wrap: wrap; margin: -0.6rem 0 1.4rem 1.5rem;
   }
   @media (max-width: 640px) { .subfilters { margin-left: 0; } }
   .subfilter-btn {
-    background: none; border: 1px solid var(--card-border); border-radius: 999px;
-    color: var(--ink-faint); font-size: 0.76rem; padding: 0.25rem 0.7rem;
+    background: none; border: 1px solid color-mix(in srgb, var(--cat-blague) 35%, var(--card-border));
+    border-radius: 999px;
+    color: color-mix(in srgb, var(--cat-blague) 65%, var(--ink-faint)); font-size: 0.76rem; padding: 0.25rem 0.7rem;
     cursor: pointer; transition: all 0.15s ease;
     font-family: -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   }
@@ -221,7 +223,6 @@
   .flashcard[data-cat="blague_longue"] .flashcard-inner,
   .flashcard[data-cat="blague_beauf"] .flashcard-inner,
   .flashcard[data-cat="blague_nulle"] .flashcard-inner,
-  .flashcard[data-cat="citation_drole"] .flashcard-inner,
   .flashcard[data-cat="contrepeterie"] .flashcard-inner,
   .flashcard[data-cat="tu_preferes"] .flashcard-inner { --cat-color: var(--cat-blague); }
   .flashcard.is-flipped .flashcard-inner { transform: rotateY(180deg); }
@@ -539,6 +540,7 @@
       <div class="progress-legend">
         <span><i class="dot done"></i>Appris</span>
         <span><i class="dot todo"></i>&Agrave; apprendre</span>
+        <span><i class="dot focus"></i>&#11088; Focus</span>
       </div>
     </div>
     <div class="filters" id="filters"></div>
@@ -639,7 +641,6 @@
             <option value="blague_longue">Blague longue</option>
             <option value="blague_beauf">Blague beauf</option>
             <option value="blague_nulle">Blague nulle</option>
-            <option value="citation_drole">Citation drôle</option>
             <option value="contrepeterie">Contrepèterie</option>
             <option value="tu_preferes">Tu préfères</option>
           </optgroup>
@@ -686,7 +687,6 @@
               <option value="blague_longue">Blague longue</option>
               <option value="blague_beauf">Blague beauf</option>
               <option value="blague_nulle">Blague nulle</option>
-              <option value="citation_drole">Citation drôle</option>
               <option value="contrepeterie">Contrepèterie</option>
               <option value="tu_preferes">Tu préfères</option>
             </optgroup>
@@ -730,7 +730,7 @@
 
 </div>
 
-<script src="words-data.js?v=4"></script>
+<script src="words-data.js?v=5"></script>
 <script>
 (function () {
   "use strict";
@@ -1194,6 +1194,16 @@
   var indexGrid = document.getElementById("index-grid");
   var cardWrap = document.querySelector(".card-wrap");
 
+  // Couleur d'accent par groupe, reprise des mêmes teintes que les cartes.
+  // "tous"/"mots" restent neutres : ils ne correspondent pas à une seule couleur.
+  var GROUP_COLOR_VAR = {
+    expressions: "--accent-strong",
+    citations: "--cat-citation",
+    humour: "--cat-humour",
+    blagues: "--cat-blague",
+    anecdote: "--focus"
+  };
+
   function buildFilters() {
     filtersEl.innerHTML = "";
     ["tous", "mots", "expressions", "citations", "humour", "blagues", "anecdote"].forEach(function (g) {
@@ -1201,6 +1211,7 @@
       var btn = document.createElement("button");
       btn.className = "filter-btn" + (g === activeGroup ? " active" : "");
       btn.textContent = GROUP_LABELS[g] + " (" + count + ")";
+      if (GROUP_COLOR_VAR[g]) btn.style.setProperty("--fb-color", "var(" + GROUP_COLOR_VAR[g] + ")");
       btn.addEventListener("click", function () {
         activeGroup = g;
         activeSubType = null;
