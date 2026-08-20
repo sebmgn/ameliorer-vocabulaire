@@ -136,6 +136,13 @@
   .progress-legend .dot.done { background: var(--tag-done); }
   .progress-legend .dot.todo { background: var(--tag-todo); }
   .progress-legend .dot.focus { background: var(--focus); }
+  .untagged-btn {
+    align-self: flex-start; background: none; border: 1px solid var(--card-border); border-radius: 999px;
+    padding: 0.15rem 0.65rem; font-size: 0.72rem; color: var(--ink-faint); cursor: pointer;
+    font-variant-numeric: tabular-nums; transition: all 0.15s ease;
+    font-family: -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  }
+  .untagged-btn:hover { color: var(--ink); border-color: var(--ink-faint); }
 
   .filters { display: flex; gap: 0.6rem; flex-wrap: wrap; }
   .filter-btn {
@@ -177,6 +184,7 @@
     border-radius: 999px; padding: 0.5rem 1rem; font-family: -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     font-size: 0.85rem; color: var(--focus); width: fit-content;
   }
+  .tag-filter-banner[hidden] { display: none; }
   @media (max-width: 640px) { .tag-filter-banner { margin-left: 0; } }
   .tag-filter-banner button {
     background: none; border: none; color: var(--focus); cursor: pointer; font-size: 0.8rem;
@@ -544,6 +552,7 @@
         <span><i class="dot todo"></i>&Agrave; apprendre</span>
         <span><i class="dot focus"></i>&#11088; Focus</span>
       </div>
+      <button type="button" class="untagged-btn" id="untagged-btn">Sans &eacute;tiquette (<span id="untagged-count">0</span>)</button>
     </div>
     <div class="filters" id="filters"></div>
     <div class="search-wrap">
@@ -1093,6 +1102,9 @@
     enqueueProgressOp({ type: "focus", id: id, value: newValue });
   }
   function countFocus() { return Object.keys(focusSet).length; }
+  function countUntagged() {
+    return ENTRIES.filter(function (e) { return !getTag(e.id) && !isFocus(e.id); }).length;
+  }
 
   // Une seule fois par appareil : les tags/focus déjà présents localement sont
   // fusionnés avec la version distante plutôt qu'écrasés par elle (même
@@ -1130,7 +1142,7 @@
   // "Focus" avec en plus une confinement optionnel à une sous-catégorie de blague.
   var activeTagFilter = null;
   var focusSubTypeFilter = null;
-  var TAG_FILTER_LABELS = { a_apprendre: "À apprendre", appris: "Appris", focus: "Focus" };
+  var TAG_FILTER_LABELS = { a_apprendre: "À apprendre", appris: "Appris", focus: "Focus", untagged: "Sans étiquette" };
 
   function matchesFilter(entry) {
     if (activeTagFilter === "focus") {
@@ -1138,6 +1150,7 @@
       if (focusSubTypeFilter) return entry.type === focusSubTypeFilter;
       return true;
     }
+    if (activeTagFilter === "untagged") return !getTag(entry.id) && !isFocus(entry.id);
     if (activeTagFilter) return getTag(entry.id) === activeTagFilter;
     var groupOk = activeGroup === "tous" || entry.group === activeGroup;
     if (!groupOk) return false;
@@ -1269,6 +1282,8 @@
     progressFillDone.style.width = (total ? (done / total * 100) : 0) + "%";
     progressFillTodo.style.width = (total ? (todo / total * 100) : 0) + "%";
     progressFillFocus.style.width = (total ? (focus / total * 100) : 0) + "%";
+    var untaggedCountEl = document.getElementById("untagged-count");
+    if (untaggedCountEl) untaggedCountEl.textContent = countUntagged();
     var totalCountEl = document.getElementById("total-count");
     var sommaireCountEl = document.getElementById("sommaire-count");
     if (totalCountEl) totalCountEl.textContent = total;
@@ -1466,6 +1481,15 @@
     clearTagFilter();
     pos = 0;
     render();
+  });
+  document.getElementById("untagged-btn").addEventListener("click", function () {
+    activeTagFilter = "untagged";
+    focusSubTypeFilter = null;
+    query = ""; searchInput.value = "";
+    updateTagFilterBanner();
+    pos = 0;
+    render();
+    flashcardEl.scrollIntoView({ behavior: "smooth", block: "center" });
   });
   document.getElementById("shuffle-btn").addEventListener("click", shuffle);
   document.getElementById("reset-btn").addEventListener("click", resetOrder);
