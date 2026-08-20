@@ -1,0 +1,40 @@
+{
+  "tags": {
+    "47": "a_apprendre",
+    "49": "a_apprendre",
+    "54": "a_apprendre",
+    "55": "a_apprendre",
+    "56": "a_apprendre",
+    "64": "a_apprendre",
+    "66": "a_apprendre",
+    "67": "a_apprendre",
+    "77": "a_apprendre",
+    "92": "a_apprendre",
+    "234": "a_apprendre"
+  },
+  "focus": {
+    "2": true,
+    "3": true,
+    "15": true,
+    "19": true,
+    "20": true,
+    "23": true,
+    "26": true,
+    "31": true,
+    "32": true,
+    "40": true,
+    "41": true,
+    "44": true,
+    "58": true,
+    "61": true,
+    "62": true,
+    "85": true,
+    "226": true,
+    "229": true,
+    "232": true,
+    "233": true,
+    "235": true,
+    "238": true,
+    "253": true
+  }
+}
