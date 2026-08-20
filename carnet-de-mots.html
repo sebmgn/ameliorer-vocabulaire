@@ -127,6 +127,7 @@
   .progress-fill { height: 100%; width: 0%; transition: width 0.4s ease; }
   .progress-fill.done { background: var(--tag-done); }
   .progress-fill.todo { background: var(--tag-todo); }
+  .progress-fill.focus { background: var(--focus); }
   .progress-legend {
     display: flex; gap: 0.9rem; font-size: 0.72rem; color: var(--ink-faint);
   }
@@ -536,6 +537,7 @@
       <div class="progress-track">
         <div class="progress-fill done" id="progress-fill-done"></div>
         <div class="progress-fill todo" id="progress-fill-todo"></div>
+        <div class="progress-fill focus" id="progress-fill-focus"></div>
       </div>
       <div class="progress-legend">
         <span><i class="dot done"></i>Appris</span>
@@ -1189,6 +1191,7 @@
   var progressText = document.getElementById("progress-text");
   var progressFillDone = document.getElementById("progress-fill-done");
   var progressFillTodo = document.getElementById("progress-fill-todo");
+  var progressFillFocus = document.getElementById("progress-fill-focus");
   var filtersEl = document.getElementById("filters");
   var searchInput = document.getElementById("search");
   var indexGrid = document.getElementById("index-grid");
@@ -1261,9 +1264,11 @@
     var total = ENTRIES.length;
     var done = countTag("appris");
     var todo = countTag("a_apprendre");
-    progressText.textContent = (done + todo) + " / " + total + " tagués";
+    var focus = countFocus();
+    progressText.textContent = (done + todo) + " / " + total + " tagués" + (focus ? " · " + focus + " en focus" : "");
     progressFillDone.style.width = (total ? (done / total * 100) : 0) + "%";
     progressFillTodo.style.width = (total ? (todo / total * 100) : 0) + "%";
+    progressFillFocus.style.width = (total ? (focus / total * 100) : 0) + "%";
     var totalCountEl = document.getElementById("total-count");
     var sommaireCountEl = document.getElementById("sommaire-count");
     if (totalCountEl) totalCountEl.textContent = total;
