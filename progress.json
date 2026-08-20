@@ -1,6 +1,9 @@
 {
   "tags": {
     "9": "a_apprendre",
+    "10": "a_apprendre",
+    "11": "a_apprendre",
+    "13": "a_apprendre",
     "47": "a_apprendre",
     "49": "a_apprendre",
     "54": "a_apprendre",
@@ -16,6 +19,7 @@
   "focus": {
     "2": true,
     "3": true,
+    "12": true,
     "15": true,
     "19": true,
     "20": true,
