@@ -25,6 +25,7 @@
     --cat-adverbe: #1E7A8C;
     --cat-citation: #9C7C1F;
     --cat-humour: #C2478C;
+    --cat-blague: #D9622B;
     --tag-todo: #B8860B;
     --tag-done: #3F9142;
   }
@@ -143,6 +144,19 @@
   .filter-btn:hover { color: var(--ink); border-color: var(--ink-faint); }
   .filter-btn.active { color: var(--accent-ink); border-color: transparent; font-weight: 600; background: var(--accent-strong); }
 
+  .subfilters {
+    display: flex; gap: 0.5rem; flex-wrap: wrap; margin: -0.6rem 0 1.4rem 1.5rem;
+  }
+  @media (max-width: 640px) { .subfilters { margin-left: 0; } }
+  .subfilter-btn {
+    background: none; border: 1px solid var(--card-border); border-radius: 999px;
+    color: var(--ink-faint); font-size: 0.76rem; padding: 0.25rem 0.7rem;
+    cursor: pointer; transition: all 0.15s ease;
+    font-family: -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  }
+  .subfilter-btn:hover { color: var(--ink); border-color: var(--cat-blague); }
+  .subfilter-btn.active { color: var(--cat-blague); border-color: var(--cat-blague); font-weight: 600; background: color-mix(in srgb, var(--cat-blague) 12%, transparent); }
+
   .search-wrap { margin-left: auto; }
   @media (max-width: 640px) { .search-wrap { margin-left: 0; width: 100%; } }
   .search-input {
@@ -203,6 +217,13 @@
   .flashcard[data-cat="anecdote"] .flashcard-inner { --cat-color: var(--focus); }
   .flashcard[data-cat="citation"] .flashcard-inner { --cat-color: var(--cat-citation); }
   .flashcard[data-cat="humour"] .flashcard-inner { --cat-color: var(--cat-humour); }
+  .flashcard[data-cat="blague_courte"] .flashcard-inner,
+  .flashcard[data-cat="blague_longue"] .flashcard-inner,
+  .flashcard[data-cat="blague_beauf"] .flashcard-inner,
+  .flashcard[data-cat="blague_nulle"] .flashcard-inner,
+  .flashcard[data-cat="citation_drole"] .flashcard-inner,
+  .flashcard[data-cat="contrepeterie"] .flashcard-inner,
+  .flashcard[data-cat="tu_preferes"] .flashcard-inner { --cat-color: var(--cat-blague); }
   .flashcard.is-flipped .flashcard-inner { transform: rotateY(180deg); }
   @media (prefers-reduced-motion: reduce) {
     .flashcard-inner { transition: none; }
@@ -285,6 +306,7 @@
   }
   .face.back .section-label:not(:first-of-type) { margin-top: 1.3rem; }
   .definition, .example { margin: 0; font-size: 1.1rem; line-height: 1.6; }
+  .definition.is-long-form { white-space: pre-line; font-size: 1rem; line-height: 1.65; text-align: left; }
   .example { font-style: italic; color: var(--ink-soft); }
   .example strong { font-style: normal; color: var(--ink); font-weight: 700; background: color-mix(in srgb, var(--cat-color) 18%, transparent); padding: 0.05em 0.3em; border-radius: 4px; }
   .synonyms { margin: 0; font-size: 1.02rem; color: var(--ink-soft); font-style: italic; }
@@ -525,6 +547,8 @@
     </div>
   </div>
 
+  <div class="subfilters" id="subfilters" hidden></div>
+
   <div class="tag-filter-banner" id="tag-filter-banner" hidden>
     <span class="tag-filter-label"></span>
     <button type="button" id="tag-filter-exit">&#10005; Revenir &agrave; tous les mots</button>
@@ -555,7 +579,7 @@
               <div class="back-emoji" id="back-emoji">&#10024;</div>
               <div class="back-word" id="back-word">mot</div>
             </div>
-            <h3 class="section-label">D&eacute;finition</h3>
+            <h3 class="section-label" id="face-def-label">D&eacute;finition</h3>
             <p class="definition" id="face-def"></p>
             <h3 class="section-label" id="face-example-label">Exemple</h3>
             <p class="example" id="face-example"></p>
@@ -610,6 +634,15 @@
           <option value="adverbe">Adverbe</option>
           <option value="citation">Citation</option>
           <option value="humour">Humour</option>
+          <optgroup label="Blagues">
+            <option value="blague_courte">Blague courte</option>
+            <option value="blague_longue">Blague longue</option>
+            <option value="blague_beauf">Blague beauf</option>
+            <option value="blague_nulle">Blague nulle</option>
+            <option value="citation_drole">Citation drôle</option>
+            <option value="contrepeterie">Contrepèterie</option>
+            <option value="tu_preferes">Tu préfères</option>
+          </optgroup>
           <option value="anecdote">Anecdote culturelle</option>
         </select>
         <button type="button" class="submit-btn" id="bulk-add-btn">Ajouter la liste</button>
@@ -648,6 +681,15 @@
             <option value="expression">Expression / locution</option>
             <option value="citation">Citation</option>
             <option value="humour">Humour</option>
+            <optgroup label="Blagues">
+              <option value="blague_courte">Blague courte</option>
+              <option value="blague_longue">Blague longue</option>
+              <option value="blague_beauf">Blague beauf</option>
+              <option value="blague_nulle">Blague nulle</option>
+              <option value="citation_drole">Citation drôle</option>
+              <option value="contrepeterie">Contrepèterie</option>
+              <option value="tu_preferes">Tu préfères</option>
+            </optgroup>
             <option value="anecdote">Anecdote culturelle</option>
           </select>
         </div>
@@ -688,7 +730,7 @@
 
 </div>
 
-<script src="words-data.js?v=3"></script>
+<script src="words-data.js?v=4"></script>
 <script>
 (function () {
   "use strict";
@@ -1074,20 +1116,30 @@
   }
 
   var activeGroup = "tous";
+  // Sous-filtre à l'intérieur du groupe "blagues" (une des 7 sous-catégories,
+  // ou null pour les voir toutes ensemble).
+  var activeSubType = null;
   var query = "";
   var pos = 0;
   var currentView = "carnet";
   // Quand on arrive depuis "Ma liste", le Carnet se restreint aux mots
   // portant ce tag (précédent/suivant ne parcourent alors que ce sous-ensemble),
-  // jusqu’à ce qu’on choisisse un filtre normal ou une recherche.
+  // jusqu’à ce qu’on choisisse un filtre normal ou une recherche. Pareil pour
+  // "Focus" avec en plus une confinement optionnel à une sous-catégorie de blague.
   var activeTagFilter = null;
+  var focusSubTypeFilter = null;
   var TAG_FILTER_LABELS = { a_apprendre: "À apprendre", appris: "Appris", focus: "Focus" };
 
   function matchesFilter(entry) {
-    if (activeTagFilter === "focus") return isFocus(entry.id);
+    if (activeTagFilter === "focus") {
+      if (!isFocus(entry.id)) return false;
+      if (focusSubTypeFilter) return entry.type === focusSubTypeFilter;
+      return true;
+    }
     if (activeTagFilter) return getTag(entry.id) === activeTagFilter;
     var groupOk = activeGroup === "tous" || entry.group === activeGroup;
     if (!groupOk) return false;
+    if (activeGroup === "blagues" && activeSubType && entry.type !== activeSubType) return false;
     if (!query) return true;
     var q = query.toLowerCase();
     return entry.mot.toLowerCase().indexOf(q) !== -1 ||
@@ -1097,6 +1149,7 @@
 
   function clearTagFilter() {
     activeTagFilter = null;
+    focusSubTypeFilter = null;
     updateTagFilterBanner();
   }
   function updateTagFilterBanner() {
@@ -1104,7 +1157,9 @@
     if (!banner) return;
     if (activeTagFilter) {
       banner.hidden = false;
-      banner.querySelector(".tag-filter-label").textContent = "Tu navigues dans « " + TAG_FILTER_LABELS[activeTagFilter] + " »";
+      var label = TAG_FILTER_LABELS[activeTagFilter];
+      if (activeTagFilter === "focus" && focusSubTypeFilter) label += " · " + TYPE_LABELS[focusSubTypeFilter];
+      banner.querySelector(".tag-filter-label").textContent = "Tu navigues dans « " + label + " »";
     } else {
       banner.hidden = true;
     }
@@ -1141,19 +1196,53 @@
 
   function buildFilters() {
     filtersEl.innerHTML = "";
-    ["tous", "mots", "expressions", "citations", "humour", "anecdote"].forEach(function (g) {
+    ["tous", "mots", "expressions", "citations", "humour", "blagues", "anecdote"].forEach(function (g) {
       var count = ENTRIES.filter(function (e) { return g === "tous" || e.group === g; }).length;
       var btn = document.createElement("button");
       btn.className = "filter-btn" + (g === activeGroup ? " active" : "");
       btn.textContent = GROUP_LABELS[g] + " (" + count + ")";
       btn.addEventListener("click", function () {
         activeGroup = g;
+        activeSubType = null;
         pos = 0;
         clearTagFilter();
         buildFilters();
         render();
       });
       filtersEl.appendChild(btn);
+    });
+    buildSubfilters();
+  }
+
+  function buildSubfilters() {
+    var subfiltersEl = document.getElementById("subfilters");
+    subfiltersEl.innerHTML = "";
+    if (activeGroup !== "blagues") { subfiltersEl.hidden = true; return; }
+    subfiltersEl.hidden = false;
+    var allCount = ENTRIES.filter(function (e) { return e.group === "blagues"; }).length;
+    var allBtn = document.createElement("button");
+    allBtn.className = "subfilter-btn" + (!activeSubType ? " active" : "");
+    allBtn.textContent = "Toutes (" + allCount + ")";
+    allBtn.addEventListener("click", function () {
+      activeSubType = null;
+      pos = 0;
+      buildSubfilters();
+      render();
+    });
+    subfiltersEl.appendChild(allBtn);
+    BLAGUE_TYPES.forEach(function (t) {
+      var count = ENTRIES.filter(function (e) { return e.type === t; }).length;
+      if (!count) return;
+      var btn = document.createElement("button");
+      btn.className = "subfilter-btn" + (activeSubType === t ? " active" : "");
+      btn.textContent = TYPE_LABELS[t] + " (" + count + ")";
+      btn.addEventListener("click", function () {
+        activeSubType = t;
+        pos = 0;
+        buildSubfilters();
+        render();
+      });
+      subfiltersEl.appendChild(btn);
     });
   }
 
@@ -1231,7 +1320,7 @@
             '</div>' +
             '<div class="face back">' +
               '<div class="back-top"><div class="back-emoji" id="back-emoji"></div><div class="back-word" id="back-word"></div></div>' +
-              '<h3 class="section-label">Définition</h3><p class="definition" id="face-def"></p>' +
+              '<h3 class="section-label" id="face-def-label">Définition</h3><p class="definition" id="face-def"></p>' +
               '<h3 class="section-label" id="face-example-label">Exemple</h3><p class="example" id="face-example"></p>' +
               '<h3 class="section-label" id="face-synonyms-label">Synonymes</h3><p class="synonyms" id="face-synonyms"></p>' +
               '<h3 class="section-label" id="face-auteur-label">Auteur</h3><p class="auteur" id="face-auteur"></p>' +
@@ -1250,12 +1339,15 @@
     emojiEl.textContent = entry.emoji;
     backEmojiEl.textContent = entry.emoji;
     wordEl.textContent = entry.mot;
-    var isQuoteLike = entry.type === "citation" || entry.type === "humour";
+    var isBlague = BLAGUE_TYPES.indexOf(entry.type) !== -1;
+    var isQuoteLike = entry.type === "citation" || entry.type === "humour" || isBlague;
     wordEl.classList.toggle("is-expr", entry.type === "expression" || isQuoteLike);
     frontAuteurEl.textContent = entry.auteur ? ("— " + entry.auteur) : "";
     frontAuteurEl.hidden = !entry.auteur;
     backWordEl.textContent = entry.mot;
     backWordEl.classList.toggle("is-expr", entry.type === "expression" || isQuoteLike);
+    document.getElementById("face-def-label").textContent = isBlague ? "Chute" : "Définition";
+    defEl.classList.toggle("is-long-form", entry.type === "blague_longue");
     defEl.innerHTML = entry.def ? entry.def : "<em>Définition à compléter&hellip;</em>";
     document.getElementById("face-example-label").hidden = isQuoteLike;
     exEl.hidden = isQuoteLike;
@@ -1521,8 +1613,9 @@
   // Ouvre le Carnet sur ce mot et restreint précédent/suivant aux mots
   // portant le même tag, jusqu’à ce qu’un filtre normal ou une recherche
   // soit utilisé (clearTagFilter).
-  function goToEntryInCarnet(entry, tag) {
+  function goToEntryInCarnet(entry, tag, subType) {
     activeTagFilter = tag;
+    focusSubTypeFilter = tag === "focus" ? (subType || null) : null;
     query = ""; searchInput.value = "";
     updateTagFilterBanner();
     var list = currentList();
@@ -1644,7 +1737,7 @@
   var focusGotoRaw = bootParams.get("focus");
   if (focusGotoRaw) {
     var focusGotoEntry = entryById(/^\d+$/.test(focusGotoRaw) ? Number(focusGotoRaw) : focusGotoRaw);
-    if (focusGotoEntry) goToEntryInCarnet(focusGotoEntry, "focus");
+    if (focusGotoEntry) goToEntryInCarnet(focusGotoEntry, "focus", bootParams.get("sub"));
     history.replaceState(null, "", location.pathname + location.hash);
   }
 })();

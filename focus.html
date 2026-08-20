@@ -132,6 +132,16 @@
     color: var(--ink-faint); font-style: italic; font-size: 0.92rem;
     font-family: -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   }
+
+  #focus-browse-all {
+    font-family: -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    font-size: 0.88rem; margin: 0 0 1.75rem;
+  }
+  #focus-browse-all a {
+    color: var(--focus); text-decoration: none; border-bottom: 1px solid var(--focus);
+  }
+  #focus-browse-all a:hover { opacity: 0.75; }
+  .focus-section { margin-bottom: 2.25rem; }
 </style>
 </head>
 <body>
@@ -145,14 +155,14 @@
   <p class="back-link"><a href="carnet-de-mots.html">&larr; Retour au Carnet</a></p>
 
   <section class="list-view">
-    <p class="intro">Les mots que tu as mis en focus &mdash; clique sur un mot pour l&rsquo;ouvrir dans le Carnet, ou retire-le directement d&rsquo;ici.</p>
-    <h2 class="list-heading">&#11088; Focus <span id="focus-count" class="count-pill"></span></h2>
-    <div class="index-grid" id="focus-grid"></div>
+    <p class="intro">Les mots que tu as mis en focus &mdash; tri&eacute;s par cat&eacute;gorie. Clique sur un mot pour l&rsquo;ouvrir dans le Carnet (la navigation pr&eacute;c&eacute;dent/suivant reste alors confin&eacute;e &agrave; cette cat&eacute;gorie), ou retire-le directement d&rsquo;ici.</p>
+    <p id="focus-browse-all" hidden><a href="#" id="focus-browse-all-link">&#127918; Parcourir tout Focus (<span id="focus-total-count"></span>) dans le Carnet</a></p>
+    <div id="focus-sections"></div>
   </section>
 
 </div>
 
-<script src="words-data.js?v=3"></script>
+<script src="words-data.js?v=4"></script>
 <script>
 (function () {
   "use strict";
@@ -248,44 +258,90 @@
   function rebuildEntries() { ENTRIES = BASE_ENTRIES.concat(customEntries); }
   rebuildEntries();
 
-  var gridEl = document.getElementById("focus-grid");
-  var countEl = document.getElementById("focus-count");
+  // Ordre d'affichage des sections, calqué sur l'ordre des filtres du Carnet.
+  var CATEGORY_ORDER = [
+    "verbe", "adjectif", "nom", "adverbe", "expression", "citation", "humour",
+    "blague_courte", "blague_longue", "blague_beauf", "blague_nulle", "citation_drole", "contrepeterie", "tu_preferes",
+    "anecdote"
+  ];
+
+  var sectionsEl = document.getElementById("focus-sections");
+  var browseAllEl = document.getElementById("focus-browse-all");
+  var browseAllLink = document.getElementById("focus-browse-all-link");
+  var totalCountEl = document.getElementById("focus-total-count");
+
+  function goto(entry, subType) {
+    var url = "carnet-de-mots.html?focus=" + encodeURIComponent(entry.id);
+    if (subType) url += "&sub=" + encodeURIComponent(subType);
+    window.location.href = url;
+  }
+
+  function buildTile(entry, subType) {
+    var tile = document.createElement("div");
+    tile.className = "index-tile";
+    tile.setAttribute("tabindex", "0");
+    tile.setAttribute("role", "button");
+    tile.innerHTML =
+      '<span class="idx-emoji">' + entry.emoji + '</span>' +
+      '<span class="idx-word">' + entry.mot + '</span>' +
+      '<span class="idx-type">' + (TYPE_LABELS[entry.type] || "") + '</span>';
+    var removeBtn = document.createElement("button");
+    removeBtn.className = "idx-remove";
+    removeBtn.innerHTML = "&#10005;";
+    removeBtn.setAttribute("aria-label", "Retirer du focus");
+    removeBtn.addEventListener("click", function (ev) {
+      ev.stopPropagation();
+      removeFocus(entry.id);
+      render();
+    });
+    tile.appendChild(removeBtn);
+    tile.addEventListener("click", function () { goto(entry, subType); });
+    tile.addEventListener("keydown", function (e) {
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); goto(entry, subType); }
+    });
+    return tile;
+  }
 
   function render() {
     var matching = ENTRIES.filter(function (e) { return isFocus(e.id); });
-    countEl.textContent = matching.length;
-    gridEl.innerHTML = "";
+    totalCountEl.textContent = matching.length;
+    browseAllEl.hidden = matching.length === 0;
+    sectionsEl.innerHTML = "";
     if (matching.length === 0) {
-      gridEl.innerHTML = '<p class="no-words">Aucun mot en focus pour l&rsquo;instant &mdash; marque des mots depuis le Carnet avec le bouton &laquo;&nbsp;&#11088; Focus&nbsp;&raquo;.</p>';
+      sectionsEl.innerHTML = '<p class="no-words">Aucun mot en focus pour l&rsquo;instant &mdash; marque des mots depuis le Carnet avec le bouton &laquo;&nbsp;&#11088; Focus&nbsp;&raquo;.</p>';
       return;
     }
-    matching.forEach(function (entry) {
-      var tile = document.createElement("div");
-      tile.className = "index-tile";
-      tile.setAttribute("tabindex", "0");
-      tile.setAttribute("role", "button");
-      tile.innerHTML =
-        '<span class="idx-emoji">' + entry.emoji + '</span>' +
-        '<span class="idx-word">' + entry.mot + '</span>' +
-        '<span class="idx-type">' + (TYPE_LABELS[entry.type] || "") + '</span>';
-      var removeBtn = document.createElement("button");
-      removeBtn.className = "idx-remove";
-      removeBtn.innerHTML = "&#10005;";
-      removeBtn.setAttribute("aria-label", "Retirer du focus");
-      removeBtn.addEventListener("click", function (ev) {
-        ev.stopPropagation();
-        removeFocus(entry.id);
-        render();
-      });
-      tile.appendChild(removeBtn);
-      function goto() { window.location.href = "carnet-de-mots.html?focus=" + encodeURIComponent(entry.id); }
-      tile.addEventListener("click", goto);
-      tile.addEventListener("keydown", function (e) {
-        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); goto(); }
-      });
-      gridEl.appendChild(tile);
+    var byType = {};
+    matching.forEach(function (e) {
+      if (!byType[e.type]) byType[e.type] = [];
+      byType[e.type].push(e);
+    });
+    var typesPresent = Object.keys(byType).sort(function (a, b) {
+      var ia = CATEGORY_ORDER.indexOf(a); if (ia === -1) ia = CATEGORY_ORDER.length;
+      var ib = CATEGORY_ORDER.indexOf(b); if (ib === -1) ib = CATEGORY_ORDER.length;
+      return ia - ib;
+    });
+    typesPresent.forEach(function (type) {
+      var entries = byType[type];
+      var section = document.createElement("div");
+      section.className = "focus-section";
+      var heading = document.createElement("h2");
+      heading.className = "list-heading";
+      heading.innerHTML = (TYPE_LABELS[type] || type) + ' <span class="count-pill">' + entries.length + '</span>';
+      section.appendChild(heading);
+      var grid = document.createElement("div");
+      grid.className = "index-grid";
+      entries.forEach(function (entry) { grid.appendChild(buildTile(entry, type)); });
+      section.appendChild(grid);
+      sectionsEl.appendChild(section);
     });
   }
+
+  browseAllLink.addEventListener("click", function (e) {
+    e.preventDefault();
+    var matching = ENTRIES.filter(function (en) { return isFocus(en.id); });
+    if (matching.length) goto(matching[0], null);
+  });
 
   render();
 
