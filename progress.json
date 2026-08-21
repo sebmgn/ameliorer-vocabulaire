@@ -23,6 +23,7 @@
     "234": "a_apprendre"
   },
   "focus": {
+    "0": true,
     "2": true,
     "3": true,
     "12": true,
