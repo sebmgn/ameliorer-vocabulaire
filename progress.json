@@ -34,7 +34,8 @@
     "330": "a_apprendre",
     "332": "a_apprendre",
     "337": "a_apprendre",
-    "338": "a_apprendre"
+    "338": "a_apprendre",
+    "344": "a_apprendre"
   },
   "focus": {
     "0": true,
@@ -86,8 +87,11 @@
     "339": true,
     "340": true,
     "342": true,
+    "343": true,
     "345": true,
     "346": true,
-    "350": true
+    "348": true,
+    "350": true,
+    "354": true
   }
 }
