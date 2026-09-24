@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Carnet de mots</title>
+<title>Carnet IT</title>
 <style>
   :root {
     --paper: #EEF0E7;
@@ -26,6 +26,15 @@
     --cat-citation: #9C7C1F;
     --cat-humour: #C2478C;
     --cat-blague: #D9622B;
+    --cat-devops: #1E7A8C;
+    --cat-virtu: #7B4FA0;
+    --cat-securite: #B23A3E;
+    --cat-iam: #2662A8;
+    --cat-observabilite: #2E7D6B;
+    --cat-continuite: #C97A2B;
+    --cat-opensource: #9C7C1F;
+    --cat-systemes: #5C6670;
+    --cat-ia: #6C4FD1;
     --tag-todo: #B8860B;
     --tag-done: #3F9142;
   }
@@ -237,6 +246,15 @@
   .flashcard[data-cat="blague_nulle"] .flashcard-inner,
   .flashcard[data-cat="contrepeterie"] .flashcard-inner,
   .flashcard[data-cat="tu_preferes"] .flashcard-inner { --cat-color: var(--cat-blague); }
+  .flashcard[data-cat="devops"] .flashcard-inner { --cat-color: var(--cat-devops); }
+  .flashcard[data-cat="virtu"] .flashcard-inner { --cat-color: var(--cat-virtu); }
+  .flashcard[data-cat="securite"] .flashcard-inner { --cat-color: var(--cat-securite); }
+  .flashcard[data-cat="iam"] .flashcard-inner { --cat-color: var(--cat-iam); }
+  .flashcard[data-cat="observabilite"] .flashcard-inner { --cat-color: var(--cat-observabilite); }
+  .flashcard[data-cat="continuite"] .flashcard-inner { --cat-color: var(--cat-continuite); }
+  .flashcard[data-cat="opensource"] .flashcard-inner { --cat-color: var(--cat-opensource); }
+  .flashcard[data-cat="systemes"] .flashcard-inner { --cat-color: var(--cat-systemes); }
+  .flashcard[data-cat="ia"] .flashcard-inner { --cat-color: var(--cat-ia); }
   .flashcard.is-flipped .flashcard-inner { transform: rotateY(180deg); }
   @media (prefers-reduced-motion: reduce) {
     .flashcard-inner { transition: none; }
@@ -390,8 +408,8 @@
   .view-toggle button.active { color: var(--ink); border-bottom-color: var(--accent-strong); }
   .view-toggle a.nav-focus { color: var(--focus); }
   .view-toggle a.nav-focus:hover { color: var(--focus); border-bottom-color: var(--focus); }
-  .view-toggle a.nav-it { color: var(--cat-adverbe); }
-  .view-toggle a.nav-it:hover { color: var(--cat-adverbe); border-bottom-color: var(--cat-adverbe); }
+  .view-toggle a.nav-it { color: var(--cat-opensource); }
+  .view-toggle a.nav-it:hover { color: var(--cat-opensource); border-bottom-color: var(--cat-opensource); }
 
   .add-view { margin-left: 3rem; max-width: 640px; }
   @media (max-width: 640px) { .add-view { margin-left: 1.5rem; } }
@@ -527,8 +545,8 @@
 
   <header class="masthead">
     <div class="masthead-text">
-      <p class="eyebrow">Carnet personnel</p>
-      <h1>Carnet de mots</h1>
+      <p class="eyebrow">Fiche de r&eacute;vision</p>
+      <h1>Carnet IT</h1>
     </div>
     <figure class="masthead-art" id="masthead-art">
       <img id="art-img" src="" alt="" />
@@ -539,9 +557,9 @@
   <nav class="view-toggle" id="view-toggle">
     <button type="button" data-view="carnet" class="active">Carnet</button>
     <button type="button" data-view="list">Ma liste</button>
-    <button type="button" data-view="add">Ajouter un mot</button>
-    <a href="focus.html" class="nav-focus">&#11088; Focus</a>
-    <a href="carnet-it.html" class="nav-it">&#128187; Carnet IT</a>
+    <button type="button" data-view="add">Ajouter un concept</button>
+    <a href="focus-it.html" class="nav-focus">&#11088; Focus</a>
+    <a href="carnet-de-mots.html" class="nav-it">&#128218; Vocabulaire</a>
   </nav>
 
   <section id="view-carnet">
@@ -565,7 +583,7 @@
     </div>
     <div class="filters" id="filters"></div>
     <div class="search-wrap">
-      <input type="text" class="search-input" id="search" placeholder="Rechercher un mot&hellip; ( / )" />
+      <input type="text" class="search-input" id="search" placeholder="Rechercher un concept&hellip; ( / )" />
     </div>
   </div>
 
@@ -573,7 +591,7 @@
 
   <div class="tag-filter-banner" id="tag-filter-banner" hidden>
     <span class="tag-filter-label"></span>
-    <button type="button" id="tag-filter-exit">&#10005; Revenir &agrave; tous les mots</button>
+    <button type="button" id="tag-filter-exit">&#10005; Revenir &agrave; tous les concepts</button>
   </div>
 
   <div class="stage">
@@ -605,7 +623,7 @@
             <p class="definition" id="face-def"></p>
             <h3 class="section-label" id="face-example-label">Exemple</h3>
             <p class="example" id="face-example"></p>
-            <h3 class="section-label" id="face-synonyms-label">Synonymes</h3>
+            <h3 class="section-label" id="face-synonyms-label">Acteurs &amp; outils</h3>
             <p class="synonyms" id="face-synonyms"></p>
             <h3 class="section-label" id="face-auteur-label">Auteur</h3>
             <p class="auteur" id="face-auteur"></p>
@@ -630,7 +648,7 @@
   </section>
 
   <section id="view-list" class="list-view" hidden>
-    <p class="intro">Les mots que tu as marqu&eacute;s, pour t&rsquo;y retrouver d&rsquo;un coup d&rsquo;&oelig;il &mdash; clique sur un mot pour naviguer dedans dans le Carnet.</p>
+    <p class="intro">Les concepts que tu as marqu&eacute;s, pour t&rsquo;y retrouver d&rsquo;un coup d&rsquo;&oelig;il &mdash; clique dessus pour naviguer dedans dans le Carnet.</p>
     <div class="list-section">
       <h2 class="list-heading">&#128278; &Agrave; apprendre <span id="list-todo-count" class="count-pill"></span></h2>
       <div class="index-grid" id="list-grid-todo"></div>
@@ -642,29 +660,22 @@
   </section>
 
   <section id="view-add" class="add-view" hidden>
-    <p class="intro">Ajoute un mot ou une expression : il rejoint aussitôt ta liste et compte dans le filtre &laquo;&nbsp;Tous&nbsp;&raquo;.</p>
+    <p class="intro">Ajoute un concept : il rejoint aussitôt ta liste et compte dans le filtre &laquo;&nbsp;Tous&nbsp;&raquo;.</p>
 
     <div class="quick-add">
-      <label for="f-bulk">Ajout rapide &mdash; un mot ou une expression par ligne</label>
-      <textarea id="f-bulk" rows="4" placeholder="De fa&ccedil;on incr&eacute;mentale&#10;Retrousser nos manches&#10;Stakhanoviste&#10;Se recroqueviller&#10;Il est au four et au moulin"></textarea>
+      <label for="f-bulk">Ajout rapide &mdash; un concept par ligne</label>
+      <textarea id="f-bulk" rows="4" placeholder="Zero Trust&#10;Service Mesh&#10;Chaos Engineering&#10;Idempotence&#10;Circuit Breaker"></textarea>
       <div class="quick-add-row">
         <select id="f-bulk-type">
-          <option value="expression">Expression / locution</option>
-          <option value="verbe">Verbe</option>
-          <option value="adjectif">Adjectif</option>
-          <option value="nom">Nom</option>
-          <option value="adverbe">Adverbe</option>
-          <option value="citation">Citation</option>
-          <option value="humour">Humour</option>
-          <optgroup label="Blagues">
-            <option value="blague_courte">Blague courte</option>
-            <option value="blague_longue">Blague longue</option>
-            <option value="blague_beauf">Blague beauf</option>
-            <option value="blague_nulle">Blague nulle</option>
-            <option value="contrepeterie">Contrepèterie</option>
-            <option value="tu_preferes">Tu préfères</option>
-          </optgroup>
-          <option value="anecdote">Anecdote culturelle</option>
+          <option value="devops">DevOps &amp; CI/CD</option>
+          <option value="virtu">Virtualisation &amp; Orchestration</option>
+          <option value="securite">Sécurité</option>
+          <option value="iam">IAM</option>
+          <option value="observabilite">Observabilité</option>
+          <option value="continuite">Continuité d'activité</option>
+          <option value="opensource">Open Source &amp; Gestion IT</option>
+          <option value="systemes">Systèmes &amp; Protocoles</option>
+          <option value="ia">IA Générative</option>
         </select>
         <button type="button" class="submit-btn" id="bulk-add-btn">Ajouter la liste</button>
       </div>
@@ -689,28 +700,21 @@
     <form class="add-form" id="add-form">
       <div class="field-row">
         <div class="field">
-          <label for="f-mot">Mot ou expression</label>
-          <input type="text" id="f-mot" required placeholder="ex&nbsp;: pusillanime" />
+          <label for="f-mot">Concept</label>
+          <input type="text" id="f-mot" required placeholder="ex&nbsp;: Kubernetes" />
         </div>
         <div class="field">
           <label for="f-type">Type</label>
           <select id="f-type">
-            <option value="verbe">Verbe</option>
-            <option value="adjectif">Adjectif</option>
-            <option value="nom">Nom</option>
-            <option value="adverbe">Adverbe</option>
-            <option value="expression">Expression / locution</option>
-            <option value="citation">Citation</option>
-            <option value="humour">Humour</option>
-            <optgroup label="Blagues">
-              <option value="blague_courte">Blague courte</option>
-              <option value="blague_longue">Blague longue</option>
-              <option value="blague_beauf">Blague beauf</option>
-              <option value="blague_nulle">Blague nulle</option>
-              <option value="contrepeterie">Contrepèterie</option>
-              <option value="tu_preferes">Tu préfères</option>
-            </optgroup>
-            <option value="anecdote">Anecdote culturelle</option>
+            <option value="devops">DevOps &amp; CI/CD</option>
+            <option value="virtu">Virtualisation &amp; Orchestration</option>
+            <option value="securite">Sécurité</option>
+            <option value="iam">IAM</option>
+            <option value="observabilite">Observabilité</option>
+            <option value="continuite">Continuité d'activité</option>
+            <option value="opensource">Open Source &amp; Gestion IT</option>
+            <option value="systemes">Systèmes &amp; Protocoles</option>
+            <option value="ia">IA Générative</option>
           </select>
         </div>
       </div>
@@ -721,15 +725,15 @@
       </div>
       <div class="field">
         <label for="f-def">D&eacute;finition</label>
-        <textarea id="f-def" required placeholder="Description synth&eacute;tique du mot ou de l&rsquo;expression."></textarea>
+        <textarea id="f-def" required placeholder="Description synth&eacute;tique du concept."></textarea>
       </div>
       <div class="field">
         <label for="f-ex">Exemple</label>
-        <textarea id="f-ex" placeholder="Une phrase qui emploie le mot tel quel."></textarea>
-        <span class="help">Le mot sera mis en gras automatiquement s&rsquo;il appara&icirc;t tel quel dans la phrase.</span>
+        <textarea id="f-ex" placeholder="Un exemple concret et facile &agrave; comprendre."></textarea>
+        <span class="help">Le concept sera mis en gras automatiquement s&rsquo;il appara&icirc;t tel quel dans le texte.</span>
       </div>
       <div class="field">
-        <label for="f-syn">Synonymes</label>
+        <label for="f-syn">Acteurs / outils</label>
         <input type="text" id="f-syn" placeholder="s&eacute;par&eacute;s par des virgules" />
       </div>
       <div class="field">
@@ -750,7 +754,7 @@
 
 </div>
 
-<script src="words-data.js?v=8"></script>
+<script src="words-data-it.js?v=1"></script>
 <script>
 (function () {
   "use strict";
@@ -767,13 +771,13 @@
   var GH_OWNER = "sebmgn";
   var GH_REPO = "ameliorer-vocabulaire";
   var GH_BRANCH = "main";
-  var GH_WORDS_PATH = "words.json";
-  var GH_PROGRESS_PATH = "progress.json";
+  var GH_WORDS_PATH = "words-it.json";
+  var GH_PROGRESS_PATH = "progress-it.json";
   var GH_TOKEN_KEY = "ghSyncToken";
-  var CUSTOM_KEY = "carnet-de-mots-custom";
-  var WORDS_QUEUE_KEY = "carnetWordsQueue";
-  var WORDS_SHA_KEY = "carnetWordsSha";
-  var WORDS_MIGRATED_KEY = "carnetWordsMigrated";
+  var CUSTOM_KEY = "carnet-it-custom";
+  var WORDS_QUEUE_KEY = "carnetItWordsQueue";
+  var WORDS_SHA_KEY = "carnetItWordsSha";
+  var WORDS_MIGRATED_KEY = "carnetItWordsMigrated";
   var WORDS_SYNC_MAX_RETRIES = 4;
   var wordsSyncInFlight = false;
 
@@ -959,9 +963,9 @@
   // Même schéma que les mots : localStorage est un cache, progress.json dans ce
   // dépôt est la référence, une file d'opérations est rejouée par-dessus la
   // version distante la plus fraîche à chaque synchro.
-  var PROGRESS_QUEUE_KEY = "carnetProgressQueue";
-  var PROGRESS_SHA_KEY = "carnetProgressSha";
-  var PROGRESS_MIGRATED_KEY = "carnetProgressMigrated";
+  var PROGRESS_QUEUE_KEY = "carnetItProgressQueue";
+  var PROGRESS_SHA_KEY = "carnetItProgressSha";
+  var PROGRESS_MIGRATED_KEY = "carnetItProgressMigrated";
   var progressSyncInFlight = false;
 
   function loadProgressQueue() {
@@ -1072,8 +1076,8 @@
   // Chaque mot peut porter un statut : "a_apprendre" ou "appris" (ou aucun).
   // L’ancien système (une simple étoile "appris") est migré une fois vers le
   // nouveau, pour ne pas perdre la progression déjà enregistrée.
-  var TAGS_KEY = "carnet-de-mots-tags";
-  var LEGACY_LEARNED_KEY = "carnet-de-mots-appris";
+  var TAGS_KEY = "carnet-it-tags";
+  var LEGACY_LEARNED_KEY = "carnet-it-appris";
   var tags = {};
   try {
     tags = JSON.parse(localStorage.getItem(TAGS_KEY) || "{}");
@@ -1098,7 +1102,7 @@
 
   // "Focus" est indépendant du statut à apprendre/appris : un mot peut être
   // en focus tout en étant par ailleurs appris ou pas encore marqué.
-  var FOCUS_KEY = "carnet-de-mots-focus";
+  var FOCUS_KEY = "carnet-it-focus";
   var focusSet = {};
   try {
     focusSet = JSON.parse(localStorage.getItem(FOCUS_KEY) || "{}");
@@ -1235,18 +1239,22 @@
   var cardWrap = document.querySelector(".card-wrap");
 
   // Couleur d'accent par groupe, reprise des mêmes teintes que les cartes.
-  // "tous"/"mots" restent neutres : ils ne correspondent pas à une seule couleur.
+  // "tous" reste neutre : il ne correspond pas à une seule couleur.
   var GROUP_COLOR_VAR = {
-    expressions: "--accent-strong",
-    citations: "--cat-citation",
-    humour: "--cat-humour",
-    blagues: "--cat-blague",
-    anecdote: "--focus"
+    devops: "--cat-devops",
+    virtu: "--cat-virtu",
+    securite: "--cat-securite",
+    iam: "--cat-iam",
+    observabilite: "--cat-observabilite",
+    continuite: "--cat-continuite",
+    opensource: "--cat-opensource",
+    systemes: "--cat-systemes",
+    ia: "--cat-ia"
   };
 
   function buildFilters() {
     filtersEl.innerHTML = "";
-    ["tous", "mots", "expressions", "citations", "humour", "blagues", "anecdote"].forEach(function (g) {
+    ["tous", "devops", "virtu", "securite", "iam", "observabilite", "continuite", "opensource", "systemes", "ia"].forEach(function (g) {
       var count = ENTRIES.filter(function (e) { return g === "tous" || e.group === g; }).length;
       var btn = document.createElement("button");
       btn.className = "filter-btn" + (g === activeGroup ? " active" : "");
@@ -1379,7 +1387,7 @@
               '<div class="back-top"><div class="back-emoji" id="back-emoji"></div><div class="back-word" id="back-word"></div></div>' +
               '<h3 class="section-label" id="face-def-label">Définition</h3><p class="definition" id="face-def"></p>' +
               '<h3 class="section-label" id="face-example-label">Exemple</h3><p class="example" id="face-example"></p>' +
-              '<h3 class="section-label" id="face-synonyms-label">Synonymes</h3><p class="synonyms" id="face-synonyms"></p>' +
+              '<h3 class="section-label" id="face-synonyms-label">Acteurs &amp; outils</h3><p class="synonyms" id="face-synonyms"></p>' +
               '<h3 class="section-label" id="face-auteur-label">Auteur</h3><p class="auteur" id="face-auteur"></p>' +
             '</div>' +
           '</div>' +
@@ -1550,7 +1558,7 @@
   });
 
   document.getElementById("footer-note").innerHTML =
-    "Deux lignes de la liste d’origine ont été traitées à part : « voir histoire du mot Kevin » est devenue la fiche 17, une anecdote culturelle plutôt qu’une définition ; et « elles ne sont pas séquentielles » a été lue comme une consigne plutôt qu’une fiche &mdash; d’où le bouton « Mélanger les cartes ». Le suivi « à apprendre / appris / focus » et tes mots ajoutés sont sauvegardés localement puis synchronisés sur tous tes appareils si un token GitHub est configuré (onglet « Ajouter un mot »).";
+    "Fiches basées sur ta fiche de révision Infra / Cloud / Sécurité / IA. Le suivi « à apprendre / appris / focus » et les fiches que tu ajoutes sont sauvegardés localement puis synchronisés sur tous tes appareils si un token GitHub est configuré (onglet « Ajouter un mot »).";
 
   var viewToggleEl = document.getElementById("view-toggle");
   var viewCarnetEl = document.getElementById("view-carnet");

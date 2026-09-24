@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Focus — Carnet de mots</title>
+<title>Focus — Carnet IT</title>
 <style>
   :root {
     --paper: #EEF0E7;
@@ -152,29 +152,29 @@
     <h1>&#11088; Focus</h1>
   </header>
 
-  <p class="back-link"><a href="carnet-de-mots.html">&larr; Retour au Carnet</a></p>
+  <p class="back-link"><a href="carnet-it.html">&larr; Retour au Carnet</a></p>
 
   <section class="list-view">
-    <p class="intro">Les mots que tu as mis en focus &mdash; tri&eacute;s par cat&eacute;gorie. Clique sur un mot pour l&rsquo;ouvrir dans le Carnet (la navigation pr&eacute;c&eacute;dent/suivant reste alors confin&eacute;e &agrave; cette cat&eacute;gorie), ou retire-le directement d&rsquo;ici.</p>
+    <p class="intro">Les concepts que tu as mis en focus &mdash; tri&eacute;s par cat&eacute;gorie. Clique dessus pour l&rsquo;ouvrir dans le Carnet (la navigation pr&eacute;c&eacute;dent/suivant reste alors confin&eacute;e &agrave; cette cat&eacute;gorie), ou retire-le directement d&rsquo;ici.</p>
     <p id="focus-browse-all" hidden><a href="#" id="focus-browse-all-link">&#127918; Parcourir tout Focus (<span id="focus-total-count"></span>) dans le Carnet</a></p>
     <div id="focus-sections"></div>
   </section>
 
 </div>
 
-<script src="words-data.js?v=8"></script>
+<script src="words-data-it.js?v=1"></script>
 <script>
 (function () {
   "use strict";
 
-  var CUSTOM_KEY = "carnet-de-mots-custom";
-  var FOCUS_KEY = "carnet-de-mots-focus";
+  var CUSTOM_KEY = "carnet-it-custom";
+  var FOCUS_KEY = "carnet-it-focus";
   var GH_TOKEN_KEY = "ghSyncToken";
   var GH_OWNER = "sebmgn";
   var GH_REPO = "ameliorer-vocabulaire";
   var GH_BRANCH = "main";
-  var GH_WORDS_PATH = "words.json";
-  var GH_PROGRESS_PATH = "progress.json";
+  var GH_WORDS_PATH = "words-it.json";
+  var GH_PROGRESS_PATH = "progress-it.json";
 
   var customEntries = [];
   try {
@@ -260,9 +260,7 @@
 
   // Ordre d'affichage des sections, calqué sur l'ordre des filtres du Carnet.
   var CATEGORY_ORDER = [
-    "verbe", "adjectif", "nom", "adverbe", "expression", "citation", "humour",
-    "blague_courte", "blague_longue", "blague_beauf", "blague_nulle", "contrepeterie", "tu_preferes",
-    "anecdote"
+    "devops", "virtu", "securite", "iam", "observabilite", "continuite", "opensource", "systemes", "ia"
   ];
 
   var sectionsEl = document.getElementById("focus-sections");
@@ -271,7 +269,7 @@
   var totalCountEl = document.getElementById("focus-total-count");
 
   function goto(entry, subType) {
-    var url = "carnet-de-mots.html?focus=" + encodeURIComponent(entry.id);
+    var url = "carnet-it.html?focus=" + encodeURIComponent(entry.id);
     if (subType) url += "&sub=" + encodeURIComponent(subType);
     window.location.href = url;
   }
@@ -308,7 +306,7 @@
     browseAllEl.hidden = matching.length === 0;
     sectionsEl.innerHTML = "";
     if (matching.length === 0) {
-      sectionsEl.innerHTML = '<p class="no-words">Aucun mot en focus pour l&rsquo;instant &mdash; marque des mots depuis le Carnet avec le bouton &laquo;&nbsp;&#11088; Focus&nbsp;&raquo;.</p>';
+      sectionsEl.innerHTML = '<p class="no-words">Aucun concept en focus pour l&rsquo;instant &mdash; marque des fiches depuis le Carnet avec le bouton &laquo;&nbsp;&#11088; Focus&nbsp;&raquo;.</p>';
       return;
     }
     var byType = {};
@@ -366,8 +364,8 @@
   ghFetchProgress()
     .then(function (remote) {
       // Fusion, jamais un écrasement : si ce navigateur a des focus locaux
-      // jamais encore synchronisés (ex. progress.json inexistant), on ne veut
-      // pas les effacer avec un état distant vide ou incomplet.
+      // jamais encore synchronisés (ex. progress-it.json inexistant), on ne
+      // veut pas les effacer avec un état distant vide ou incomplet.
       focusSet = Object.assign({}, focusSet, remote.state.focus || {});
       persistFocus();
       render();
