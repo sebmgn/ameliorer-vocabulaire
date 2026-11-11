@@ -599,7 +599,7 @@ function renderSession(dir) {
   if (finished) { renderSessionDone(body); return; }
   const it = sess.items[sess.i], e = entryById(it.id);
   body.innerHTML = '<div class="stage solo"><div class="card-host"></div></div><div class="actions" id="session-actions"></div>' +
-    '<p class="keys"><span><kbd>Espace</kbd> retourner · <kbd>1</kbd> à revoir · <kbd>2</kbd> je savais · <kbd>F</kbd> focus</span></p>';
+    '<p class="keys"><span><kbd>Espace</kbd> retourner · <kbd>A</kbd> à revoir · <kbd>Z</kbd> je savais · <kbd>F</kbd> focus</span></p>';
   sessCard = mountCard($(".card-host", body), e, { dir: dir === undefined ? 1 : dir, bonus: it.bonus, retry: it.retry, onFlip: paintSessionActions });
   paintSessionActions();
 }
@@ -609,10 +609,10 @@ function paintSessionActions() {
   const it = sess.items[sess.i], on = isFocus(it.id);
   const star = '<button type="button" class="iconbtn' + (on ? " on" : "") + '" data-act="focus" title="' + (on ? "Retirer du focus" : "Mettre en focus") + ' (F)" aria-pressed="' + on + '">⭐</button>';
   if (!sessCard.flipped) bar.innerHTML = '<button type="button" class="btn primary" data-act="flip">Retourner la carte <kbd>Espace</kbd></button>' + star;
-  else if (it.bonus) bar.innerHTML = '<button type="button" class="btn primary" data-act="good">😄 Terminer la session <kbd>2</kbd></button>' + star;
+  else if (it.bonus) bar.innerHTML = '<button type="button" class="btn primary" data-act="good">😄 Terminer la session <kbd>Z</kbd></button>' + star;
   else bar.innerHTML =
-    '<button type="button" class="btn again" data-act="bad">↻ À revoir <kbd>1</kbd></button>' +
-    '<button type="button" class="btn good" data-act="good">✓ Je savais <kbd>2</kbd></button>' + star;
+    '<button type="button" class="btn again" data-act="bad">↻ À revoir <kbd>A</kbd></button>' +
+    '<button type="button" class="btn good" data-act="good">✓ Je savais <kbd>Z</kbd></button>' + star;
   $$("[data-act]", bar).forEach(b => b.addEventListener("click", () => sessionAct(b.dataset.act)));
 }
 function sessionAct(act) {
@@ -1209,8 +1209,8 @@ const KEYS = {
     if (!sessCard) return false;
     if (k === " " || k === "Enter") { sessionAct("flip"); return true; }
     if (k === "f") { sessionAct("focus"); return true; }
-    if (k === "1" || k === "ArrowLeft") { sessionAct("bad"); return true; }
-    if (k === "2" || k === "ArrowRight") { sessionAct("good"); return true; }
+    if (k === "a" || k === "ArrowLeft") { sessionAct("bad"); return true; }
+    if (k === "z" || k === "ArrowRight") { sessionAct("good"); return true; }
     return false;
   },
   browse: k => {
