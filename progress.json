@@ -31,6 +31,7 @@
     "202": "appris",
     "219": "a_apprendre",
     "223": "a_apprendre",
+    "226": "a_apprendre",
     "234": "a_apprendre",
     "329": "a_apprendre",
     "330": "a_apprendre",
@@ -38,7 +39,8 @@
     "337": "a_apprendre",
     "338": "a_apprendre",
     "344": "a_apprendre",
-    "349": "a_apprendre"
+    "349": "a_apprendre",
+    "371": "appris"
   },
   "focus": {
     "0": true,
