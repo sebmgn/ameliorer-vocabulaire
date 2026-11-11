@@ -682,6 +682,40 @@ function confettiHTML() {
   }
   return '<div class="confetti" aria-hidden="true">' + h + "</div>";
 }
+/* Petit texte de fin de session : une phrase par carte notée, le mot surligné
+   en vert (je savais) ou en rouge (à revoir). Les phrases viennent des exemples des fiches. */
+function recapSentence(e, ok) {
+  const cls = ok ? "good" : "bad";
+  const mark = html => '<mark class="' + cls + '" data-id="' + esc(e.id) + '">' + html + "</mark>";
+  let ex = String(e.ex || "").trim();
+  if (!ex) {
+    // Citation sans exemple : la citation elle-même, avec son auteur.
+    const who = Core.cleanAuthor(e.auteur);
+    return "«&nbsp;" + mark(capFirst(e.mot).replace(/[\s.]+$/, "")) + "&nbsp;»" + (who ? ", disait " + who : "") + ".";
+  }
+  if (/<strong>/i.test(ex)) ex = ex.replace(/<strong>([\s\S]*?)<\/strong>/i, (m, inner) => mark(inner)).replace(/<\/?strong>/gi, "");
+  else {
+    const name = Core.plainText(e.mot), bare = name.replace(/\s*\([^)]*\)\s*/g, " ").trim();
+    const hit = [name, bare].filter(n => n && ex.toLowerCase().indexOf(n.toLowerCase()) !== -1)[0];
+    if (hit) {
+      const i = ex.toLowerCase().indexOf(hit.toLowerCase());
+      ex = ex.slice(0, i) + mark(ex.slice(i, i + hit.length)) + ex.slice(i + hit.length);
+    } else ex = mark(e.mot) + " — " + ex;
+  }
+  ex = ex.replace(/^«\s*|\s*»$/g, "");
+  return /[.!?…»]$/.test(Core.plainText(ex)) ? ex : ex + ".";
+}
+function recapHTML() {
+  const parts = [];
+  sess.items.forEach((it, i) => {
+    const r = sess.results[i], e = entryById(it.id);
+    if (it.bonus || it.retry || !e || (r !== "g" && r !== "b")) return;
+    parts.push(recapSentence(e, r === "g"));
+  });
+  if (!parts.length) return "";
+  return '<div class="recap"><p class="recap-title">Ta session en un texte</p><p class="recap-text">' + parts.join(" ") + "</p>" +
+    '<p class="recap-legend"><mark class="good">vert</mark> je savais · <mark class="bad">rouge</mark> à revoir — clique un mot pour revoir sa carte</p></div>';
+}
 function renderSessionDone(body) {
   const streak = Core.computeStreak(allDays(), new Date());
   const graded = sess.good + sess.bad;
@@ -698,12 +732,14 @@ function renderSessionDone(body) {
       '<p class="done-line">' + line + "</p>" +
       '<p class="done-streak">🔥 <strong>' + streak + "</strong> jour" + (streak > 1 ? "s" : "") + " d’affilée</p>" +
       weekHTML() +
+      recapHTML() +
       '<div class="actions">' +
         '<button type="button" class="btn primary" data-go="again">Encore ' + SESSION_SIZE + " cartes</button>" +
         '<button type="button" class="btn" data-go="quiz">⚡ Un quiz</button>' +
         '<button type="button" class="btn" data-go="browse">📖 Parcourir</button>' +
       "</div>" +
     "</div>";
+  $$(".recap-text mark", body).forEach(m => m.addEventListener("click", () => openInBrowse(entryById(m.dataset.id), {})));
   $$("[data-go]", body).forEach(b => b.addEventListener("click", () => {
     if (b.dataset.go === "again") { newSession(sess.source); renderSession(0); } else go(b.dataset.go);
   }));

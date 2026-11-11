@@ -316,6 +316,16 @@ h1 { font: 600 30px/1.1 var(--serif); letter-spacing: -.015em; }
 .week .d.hit i { border: 0; background: var(--good); }
 .week .d.today i { box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--ink-3); }
 .week .d.today { color: var(--ink); }
+.recap { margin: 24px 0 0; padding: 18px 20px; border-radius: 16px; background: var(--surface-2); border: 1px solid var(--line); text-align: left; }
+.recap-title { margin-bottom: 8px; font: 700 11px/1.3 var(--sans); letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); }
+.recap-text { font: 400 17px/1.7 var(--serif); color: var(--ink); }
+.recap mark { padding: 1px 2px; border-radius: 4px; font-weight: 600; cursor: pointer; }
+.recap mark.good { background: var(--good-bg); color: var(--good); }
+.recap mark.bad { background: var(--wrong-bg); color: var(--wrong); }
+.recap mark:hover { text-decoration: underline; }
+.recap-legend { margin-top: 10px; font-size: 12px; color: var(--ink-3); }
+.recap-legend mark { cursor: default; }
+.finish { max-width: 680px; }
 .confetti { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
 .confetti i { position: absolute; top: -14px; width: 8px; height: 14px; border-radius: 2px; opacity: 0; animation: confetti var(--t) cubic-bezier(.2, .6, .4, 1) var(--d) forwards; }
 
