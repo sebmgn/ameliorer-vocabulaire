@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="app.css?v=2">
+<link rel="stylesheet" href="app.css?v=3">
 </head>
 <body>
 <noscript><p class="noscript">Ce carnet a besoin de JavaScript pour fonctionner.</p></noscript>
@@ -32,6 +32,8 @@ window.DECK = {
   quizGroups: ["devops", "virtu", "securite", "iam", "observabilite", "continuite", "opensource", "systemes", "itsm", "ia"],
   // Fichiers du dépôt qui gardent les données d’un appareil à l’autre.
   paths: { words: "words-it.json", progress: "progress-it.json", study: "study-it.json" },
+  // La série 🔥 compte aussi les jours passés sur l’autre carnet.
+  otherStudy: { path: "study.json", cache: "carnet-de-mots-study", peekKey: "carnet-de-mots-study-peek" },
   // Clés du stockage local — ne pas les renommer : elles contiennent ce qui est déjà enregistré sur chaque appareil.
   keys: {
     custom: "carnet-it-custom", wordsQueue: "carnetItWordsQueue", wordsMigrated: "carnetItWordsMigrated",
@@ -52,6 +54,6 @@ window.DECK = {
   }
 };
 </script>
-<script src="app.js?v=4"></script>
+<script src="app.js?v=5"></script>
 </body>
 </html>

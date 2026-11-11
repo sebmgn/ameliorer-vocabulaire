@@ -408,9 +408,28 @@ const studyStore = Core.createStore(Object.assign(storeBase("study"), {
   normalize: Core.normStudy, apply: Core.applyStudyOp, message: () => "study: sync",
   onChange: () => refreshMeta(),
 }));
+// La série de jours est commune aux deux carnets : on lit aussi (sans jamais l'écrire)
+// le fichier d'étude de l'autre carnet. File toujours vide = simple lecture.
+const otherStudy = D.otherStudy ? Core.createStore(Object.assign(storeBase("other"), {
+  path: D.otherStudy.path, queueKey: D.otherStudy.peekKey + "-q", onStatus: null,
+  load: () => Core.normStudy(readJSON(D.otherStudy.peekKey, null)), save: s => writeJSON(D.otherStudy.peekKey, s),
+  normalize: Core.normStudy, apply: Core.applyStudyOp, message: () => "",
+  onChange: () => refreshMeta(),
+})) : null;
+function allDays() {
+  const days = Object.assign({}, studyStore.get().days);
+  if (D.otherStudy) {
+    // Ce que l'autre carnet a en local (pas encore envoyé) ou ce qu'on a lu sur GitHub : le plus grand des deux.
+    const local = Core.normStudy(readJSON(D.otherStudy.cache, null)).days, remote = otherStudy.get().days;
+    Object.keys(Object.assign({}, local, remote)).forEach(k => {
+      days[k] = (days[k] || 0) + Math.max(local[k] || 0, remote[k] || 0);
+    });
+  }
+  return days;
+}
 const stores = [wordsStore, progressStore, studyStore];
 let lastSyncAll = 0;
-function syncAll() { lastSyncAll = Date.now(); stores.forEach(s => { s.sync(); }); }
+function syncAll() { lastSyncAll = Date.now(); stores.forEach(s => { s.sync(); }); if (otherStudy) otherStudy.sync(); }
 
 /* ---------- fiches ---------- */
 let entries = [], byId = new Map();
@@ -644,7 +663,7 @@ function sessionAct(act) {
   setTimeout(() => { if (st.view === "session") renderSession(1); }, 190);
 }
 function weekHTML() {
-  const days = studyStore.get().days, names = ["D", "L", "M", "M", "J", "V", "S"], out = [];
+  const days = allDays(), names = ["D", "L", "M", "M", "J", "V", "S"], out = [];
   for (let i = 6; i >= 0; i--) {
     const d = new Date();
     d.setDate(d.getDate() - i);
@@ -664,7 +683,7 @@ function confettiHTML() {
   return '<div class="confetti" aria-hidden="true">' + h + "</div>";
 }
 function renderSessionDone(body) {
-  const streak = Core.computeStreak(studyStore.get().days, new Date());
+  const streak = Core.computeStreak(allDays(), new Date());
   const graded = sess.good + sess.bad;
   const first = !sess.celebrated;
   sess.celebrated = true;
@@ -1079,7 +1098,7 @@ function renderAdd() {
    EN-TÊTE : série, synchro, tableau
    ========================================================================== */
 function paintStreak() {
-  const days = studyStore.get().days, n = Core.computeStreak(days, new Date()), doneToday = days[todayIso()] || 0;
+  const days = allDays(), n = Core.computeStreak(days, new Date()), doneToday = days[todayIso()] || 0;
   const el = $("#streak");
   el.className = "streak" + (n ? " on" : "") + (doneToday ? " today" : "");
   el.innerHTML = "🔥 <strong>" + n + "</strong><span>jour" + (n > 1 ? "s" : "") + "</span>";

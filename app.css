@@ -423,7 +423,7 @@ textarea { min-height: 78px; resize: vertical; line-height: 1.45; }
   .eyebrow { display: none; }
   h1 { font-size: 22px; }
   .deck-switch { margin-left: 0; flex-basis: 100%; width: fit-content; flex-grow: 0; }
-  .art, #sync-label { display: none; }
+  .art, .syncchip[data-state="ok"] #sync-label, .syncchip[data-state="busy"] #sync-label { display: none; }
   .streak, .syncchip { height: 34px; padding: 0 11px; }
   .tabs { margin: 16px 0 20px; width: auto; }
   .tab { padding: 8px 13px; font-size: 13px; }
