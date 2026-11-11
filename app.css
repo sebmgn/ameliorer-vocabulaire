@@ -284,8 +284,8 @@ h1 { font: 600 30px/1.1 var(--serif); letter-spacing: -.015em; }
 @keyframes card-in { from { opacity: 0; transform: translateY(14px) scale(.975); } }
 @keyframes card-in-right { from { opacity: 0; transform: translateX(44px) rotate(1.5deg); } }
 @keyframes card-in-left { from { opacity: 0; transform: translateX(-44px) rotate(-1.5deg); } }
-@keyframes card-out-good { to { opacity: 0; transform: translateX(130px) rotate(7deg); } }
-@keyframes card-out-bad { to { opacity: 0; transform: translateX(-130px) rotate(-7deg); } }
+@keyframes card-out-good { to { opacity: 0; transform: translateX(-130px) rotate(-7deg); } }
+@keyframes card-out-bad { to { opacity: 0; transform: translateX(130px) rotate(7deg); } }
 @keyframes pulse { 50% { opacity: .35; } }
 @keyframes pop { 0% { transform: scale(.4); opacity: 0; } 70% { transform: scale(1.15); } }
 @keyframes shake { 20%, 60% { transform: translateX(-5px); } 40%, 80% { transform: translateX(5px); } }
