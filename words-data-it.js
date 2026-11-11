@@ -206,27 +206,52 @@
     { mot: "Grounding", emoji: "⚓", type: "ia",
       def: "Le fait de forcer un modèle d’IA à ancrer sa réponse dans une source documentaire réelle et vérifiable, plutôt que de la générer « de mémoire » à partir de ses probabilités internes.",
       ex: "Littéralement « mettre les pieds au sol » : le modèle ne répond que s’il peut pointer vers un passage source concret — c’est le principe qui sous-tend le RAG (Retrieval-Augmented Generation).",
-      syn: "RAG (Retrieval-Augmented Generation)", date: "2026-09-24" }
+      syn: "RAG (Retrieval-Augmented Generation)", date: "2026-09-24" },
+
+    // ----- Ajouts du 11 novembre 2026 (toujours à la suite : les identifiants sont les positions) -----
+    { mot: "ITIL (Information Technology Infrastructure Library)", emoji: "📘", type: "itsm",
+      def: "Recueil de bonnes pratiques, né au Royaume-Uni dans les années 1980, qui décrit comment une DSI organise la gestion de ses services (ITSM, IT Service Management) : traiter les pannes, encadrer les changements, tenir un catalogue de services, mesurer la qualité rendue… Ce n’est ni un outil ni une norme : c’est un vocabulaire et des processus communs, que des outils comme ServiceNow ou GLPI mettent en œuvre.",
+      ex: "Ton VPN ne marche plus, tu ouvres un ticket, le support le classe « incident, priorité 3 » et s’engage à te répondre sous 4 heures : tu es dans un processus ITIL.",
+      syn: "ITSM, ITIL 4 (2019), ServiceNow, GLPI, centre de services", date: "2026-11-11" },
+    { mot: "MCO (Maintien en Condition Opérationnelle)", emoji: "🔧", type: "itsm",
+      def: "Toutes les activités qui gardent un système en état de marche <em>après</em> sa mise en production : surveiller, corriger les pannes, appliquer les mises à jour, remplacer le matériel, vérifier les sauvegardes, renouveler les certificats. On parle aussi de « run », par opposition au « build » (construire du nouveau). Son jumeau, le <strong>MCS</strong> (Maintien en Condition de Sécurité), couvre les correctifs de sécurité et le suivi des vulnérabilités.",
+      ex: "Une fois le site de e-commerce livré, il faut encore quelqu’un pour vérifier qu’il répond, patcher le serveur chaque mois et renouveler le certificat HTTPS avant qu’il n’expire : c’est le MCO. Ce n’est pas une pratique DevOps en soi, mais dans une équipe DevOps, ceux qui construisent participent aussi au MCO (« you build it, you run it »).",
+      syn: "run vs build, exploitation, MCS, TMA (Tierce Maintenance Applicative), astreinte", date: "2026-11-11" },
+    { mot: "Incident vs Problème", emoji: "🚨", type: "itsm",
+      def: "<ul><li><strong>Incident</strong> : une interruption ou une dégradation d’un service. Objectif : <em>rétablir le service le plus vite possible</em>, quitte à contourner (redémarrer, basculer) sans comprendre la cause.</li><li><strong>Problème</strong> : la cause profonde d’un ou de plusieurs incidents. Objectif : <em>comprendre et supprimer la cause</em> pour que ça ne se reproduise plus — on prend le temps de l’analyse.</li></ul>",
+      ex: "Le site tombe tous les lundis matin. Chaque lundi, on redémarre le serveur en 5 minutes : gestion des incidents. L’enquête montre qu’une sauvegarde sature le disque le dimanche soir ; on la déplace et les pannes cessent : gestion des problèmes.",
+      syn: "solution de contournement (workaround), RCA (Root Cause Analysis), post-mortem, erreur connue", date: "2026-11-11" },
+    { mot: "CAB (Change Advisory Board)", emoji: "🧑‍⚖️", type: "itsm",
+      def: "Comité consultatif des changements : le groupe qui examine les changements prévus en production (mise à jour, migration, nouvelle règle de pare-feu…) et donne son avis — on y va, on reporte, on refuse. Il réunit le responsable des changements, l’exploitation, la sécurité, le réseau et les métiers concernés. Pour chaque demande (RFC, Request for Change), il vérifie : pourquoi, quel risque, quel impact, quels tests, quel plan de retour arrière, quelle date. But : éviter qu’un changement mal préparé casse la production, et que deux changements se télescopent.",
+      ex: "Jeudi 14 h, CAB hebdomadaire : l’équipe réseau veut remplacer un cœur de réseau samedi soir. Le CAB réclame la procédure de retour arrière, constate qu’une migration de base de données est prévue le même soir, et décale l’un des deux d’une semaine.",
+      syn: "RFC (Request for Change), calendrier des changements, retour arrière (rollback), ECAB (CAB d’urgence)", date: "2026-11-11" },
+    { mot: "Changement standard vs normal vs urgent", emoji: "🚦", type: "itsm",
+      def: "<ul><li><strong>Standard</strong> : routinier, peu risqué, déjà fait cent fois selon une procédure validée. Il est <em>pré-approuvé</em> : pas de passage en CAB.</li><li><strong>Normal</strong> : tout le reste. Circuit complet — demande (RFC), évaluation du risque, passage en CAB si le risque le justifie, planification.</li><li><strong>Urgent</strong> : à faire tout de suite pour rétablir un service ou corriger une faille critique. Circuit accéléré, validation par un comité restreint (ECAB), documentation complétée après coup.</li></ul>",
+      ex: "Ajouter de la mémoire à une machine virtuelle selon la procédure habituelle : standard. Migrer la base de données de la paie vers une nouvelle version : normal, avec CAB. Appliquer cette nuit le correctif d’une faille déjà exploitée par des attaquants : urgent.",
+      syn: "pré-approuvé, RFC, ECAB (Emergency CAB), modèle de changement", date: "2026-11-11" },
+    { mot: "Abaque de changement (matrice risque × impact)", emoji: "🧮", type: "itsm",
+      def: "Grille de décision qui évite de débattre de chaque changement au cas par cas : on note le changement sur quelques critères (gravité si ça se passe mal, probabilité que ça se passe mal, nombre d’utilisateurs touchés, facilité du retour arrière), et la grille donne mécaniquement son niveau de risque — donc le circuit à suivre : qui valide, quel délai de prévenance, CAB ou non.",
+      ex: "Impact fort (toute l’entreprise) × probabilité faible (procédure rodée, retour arrière en 5 minutes) = risque moyen → passage en CAB et 5 jours de prévenance. Impact faible × probabilité faible = risque faible → changement standard, sans CAB.",
+      syn: "matrice de risque, impact × probabilité, niveau d’approbation, délai de prévenance", date: "2026-11-11" }
   ];
 
   var TYPE_LABELS = {
     devops: "DevOps & CI/CD", virtu: "Virtualisation & Orchestration", securite: "Sécurité",
     iam: "IAM", observabilite: "Observabilité", continuite: "Continuité d’activité",
-    opensource: "Open Source & Gestion IT", systemes: "Systèmes & Protocoles", ia: "IA Générative"
+    opensource: "Open Source & Gestion IT", systemes: "Systèmes & Protocoles", ia: "IA Générative",
+    itsm: "ITIL & Gestion des services"
   };
   var GROUP_LABELS = {
     tous: "Tous", devops: "DevOps", virtu: "Virtu & Orchestration", securite: "Sécurité",
     iam: "IAM", observabilite: "Observabilité", continuite: "Continuité", opensource: "Open Source",
-    systemes: "Systèmes", ia: "IA"
+    systemes: "Systèmes", ia: "IA", itsm: "ITIL & Run"
   };
   var GROUP_OF = {
     devops: "devops", virtu: "virtu", securite: "securite", iam: "iam",
     observabilite: "observabilite", continuite: "continuite", opensource: "opensource",
-    systemes: "systemes", ia: "ia"
+    systemes: "systemes", ia: "ia", itsm: "itsm"
   };
-  // Le carnet réutilise le même moteur que le carnet de vocabulaire ; ce tableau
-  // (sous-catégories de "blagues" là-bas) reste référencé par du code partagé —
-  // vide ici, il ne fait jamais rien pour ce jeu de fiches.
+  // Sous-catégories de "blagues" dans le carnet de vocabulaire : aucune ici.
   var BLAGUE_TYPES = [];
 
   BASE_ENTRIES.forEach(function (e, i) { e.id = i; e.group = GROUP_OF[e.type]; });
